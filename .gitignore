@@ -1,0 +1,42 @@
+# 编译生成的对象文件
+!*.uvprojx
+
+资料/
+*.vscode
+*.o
+*.obj
+.clang-format
+DebugConfig
+Listings
+Objects
+RTE
+*.scvd
+*.GX
+
+# 可执行文件
+*.exe
+*.out
+*.elf
+
+# Keil/MDK 临时文件
+*.uvproj
+*.uvoptx
+*.ilk
+*.bak
+
+# STM32 Cube/库生成的文件
+*.ioc
+*.bin
+*.hex
+
+# 临时文件夹
+Debug/
+Release/
+Build/
+
+# 日志文件
+*.log
+
+# 系统文件
+.DS_Store
+Thumbs.db

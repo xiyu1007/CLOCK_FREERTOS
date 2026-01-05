@@ -1,0 +1,38 @@
+#ifndef __U_LOG_H__
+#define __U_LOG_H__
+
+#include "main.h"
+#include "stm32f4xx.h"
+#include "u_timer.h"
+#include "u_usart.h"
+#include <stdio.h>
+
+
+#define LOG_USART         SERIAL_USART
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE* f)
+
+#define log(fmt, ...)     printf("[LOG] FILE: %s LINE: %d\r\n" fmt "\r\n", __FILE__, __LINE__, ##__VA_ARGS__)
+
+#define LOG_BUF_SIZE      256
+
+extern char            log_buf[LOG_BUF_SIZE];
+extern weather_info_t  g_weather_info;
+extern system_status_t g_s_s;
+
+typedef struct{
+    uint8_t ready;
+    uint8_t active;
+    char* ptr;
+    char buf[LOG_BUF_SIZE];
+    
+} log_t;
+
+
+void log_init(void);
+char* log_buf_get(void);
+
+
+
+
+#endif /* __U_LOG_H__ */
+
