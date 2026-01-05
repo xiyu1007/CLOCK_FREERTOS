@@ -1,11 +1,21 @@
 #include "AT.h"
 
-static uint8_t            at_usartc_ready = 0;
-USARTConfig               g_at_usartc;
-static char               g_at_buf[AT_RECV_BUF_SIZE];
-static char*              buf_ptr   = g_at_buf;
-static volatile AT_Status at_status = AT_BUSY;
-static volatile uint8_t   at_echo   = 0;
+/* ================= 内部状态 ================= */
+
+static uint8_t   at_ready  = 0;
+static uint8_t   at_echo   = 0;
+static AT_Status at_status = AT_IDLE;
+
+USARTConfig g_at_usartc;
+static char g_at_buf[AT_RECV_BUF_SIZE];
+
+/* ================= AT 状态映射 ================= */
+
+typedef struct
+{
+	const char* str;
+	AT_Status   status;
+} AT_StatusMap;
 
 static const AT_StatusMap at_status_map[] = {
 	{ "OK",        AT_OK    },
@@ -14,267 +24,138 @@ static const AT_StatusMap at_status_map[] = {
 	{ "busy p...", AT_BUSY  },
 };
 
+
+static uint8_t AT_Wait_Send(uint32_t timeout);
+static uint8_t AT_Is_Busy(void);
+static uint8_t AT_Transceive(const char* cmd, uint32_t timeout);
+
+static int     json_next_string(char** pp, const char* key, char* out, size_t out_len);
+static void    extract_province_from_path(const char* path, char* province, size_t len);
+static uint8_t parse_weather(weather_info_t* info);
+static uint8_t parse_time(time_t* t_tm);
+static void AT_Show_Time(time_t* tm);
+
+
+
+/* ================= AT 初始化 ================= */
+
 uint8_t AT_Init(void)
 {
-	if (!at_usartc_ready)
+	if (at_ready)
+		return 1;
+
+	usart_default_config(&g_at_usartc);
+	g_at_usartc.usartx = AT_USART;
+	g_at_usartc.port   = AT_USART_PORT;
+	g_at_usartc.tx     = AT_USART_TX;
+	g_at_usartc.rx     = AT_USART_RX;
+	u_usart_init(&g_at_usartc);
+
+	at_ready = 1;
+
+	if (!AT_Wait_Send(AT_INIT_TIMEOUT))
 	{
-		usart_default_config(&g_at_usartc);
-		g_at_usartc.usartx = AT_USART;
-		g_at_usartc.port   = AT_USART_PORT;
-		g_at_usartc.tx     = AT_USART_TX;
-		g_at_usartc.rx     = AT_USART_RX;
-		u_usart_init(&g_at_usartc);
-		at_usartc_ready = 1;
-
-		// while (USART_GetFlagStatus(g_at_usartc.usartx, USART_FLAG_RXNE) != RESET)
-		// 	(void)USART_ReceiveData(g_at_usartc.usartx);
-		AT_LOG("AT Init...");
-		if (!AT_Wait_Send(AT_RECV_TIMEOUT))
-			goto at_init_fail;
-
-//		AT_Send("AT+RESTORE", AT_RECV_TIMEOUT);
-//		AT_Parse();
-//		AT_Callback();
-//		if (!AT_Wait_Status(AT_READY, AT_INIT_TIMEOUT))
-//			goto at_init_fail;
+		AT_LOG("AT init failed");
+		return 0;
 	}
 
-	AT_Set_Echo(at_echo);
-	// AT_Parse();
-	// AT_Callback();
-	AT_LOG("AT Initialized.");
-	return 1;
+	if (at_echo)
+		AT_Transceive("ATE1", AT_RECV_TIMEOUT);
+	else
+		AT_Transceive("ATE0", AT_RECV_TIMEOUT);
 
-at_init_fail:
-	AT_LOG("AT Init Failed.");
-	return 0;
+	AT_LOG("AT initialized");
+	return 1;
 }
+
+/* ================= USART 底层 ================= */
+
+static void at_usart_send_str(const char* s)
+{
+	while (*s){
+		while (USART_GetFlagStatus(g_at_usartc.usartx, USART_FLAG_TXE) == RESET){
+			;
+		}
+		USART_SendData(g_at_usartc.usartx, (uint8_t)*s++);
+	}
+}
+
+/* ================= AT 基础操作 ================= */
 
 void AT_SendCRLF(void)
 {
-	while (USART_GetFlagStatus(g_at_usartc.usartx, USART_FLAG_TXE) == RESET)
-		;
-	USART_SendData(g_at_usartc.usartx, (uint8_t)'\r');
-	while (USART_GetFlagStatus(g_at_usartc.usartx, USART_FLAG_TXE) == RESET)
-		;
-	USART_SendData(g_at_usartc.usartx, (uint8_t)'\n');
-	while (USART_GetFlagStatus(g_at_usartc.usartx, USART_FLAG_TC) == RESET)
-		;
+    at_usart_send_str("\r\n");
 }
 
-void AT_Set_Echo(uint8_t echo)
+void AT_Send(const char* cmd)
 {
-	if (echo)
-		AT_Send("ATE1", AT_RECV_TIMEOUT);
-	else
-		AT_Send("ATE0", AT_RECV_TIMEOUT);
-}
-
-void AT_Recv(uint32_t timeout)
-{
-	if (!at_usartc_ready)
-	{
-		AT_LOG("AT Recv: usart not ready.");
+	if (!at_ready)
 		return;
-	}
+
+	at_usart_send_str(cmd);
+	AT_SendCRLF();
+}
+
+/* 唯一阻塞点（将来 RTOS 用 Queue/StreamBuffer 替换） */
+static void AT_Recv(uint32_t timeout)
+{
 	uint32_t tick = NOW();
-	buf_ptr       = g_at_buf;
-	while (1)
+	char*    p    = g_at_buf;
+
+	memset(g_at_buf, 0, sizeof(g_at_buf));
+
+	while (!IS_TIMEOUT(tick, timeout))
 	{
 		if (USART_GetFlagStatus(g_at_usartc.usartx, USART_FLAG_RXNE) != RESET)
 		{
-			*buf_ptr++ = USART_ReceiveData(g_at_usartc.usartx);
-			if (buf_ptr == g_at_buf + AT_RECV_BUF_SIZE - 1)
+			*p++ = USART_ReceiveData(g_at_usartc.usartx);
+			if (p >= g_at_buf + AT_RECV_BUF_SIZE - 1)
 			{
-				AT_LOG("AT Recv: buf full.");
+				at_status = AT_BUF_FULL;
 				break;
 			}
 			// \r\nERROR\r\n
-			if (buf_ptr == g_at_buf + 9 && *(buf_ptr - 1) == '\n' &&
-			    buf_ptr[-2] == '\r' && buf_ptr[-3] == 'R' &&
-			    buf_ptr[-4] == 'O' && buf_ptr[-5] == 'R' &&
-			    buf_ptr[-6] == 'R' && buf_ptr[-7] == 'E' &&
-			    buf_ptr[-8] == '\n' && buf_ptr[-9] == '\r')
+			if (p == g_at_buf + 9 && *(p - 1) == '\n' && p[-2] == '\r' && p[-3] == 'R' && p[-4] == 'O' &&
+			    p[-5] == 'R' && p[-6] == 'R' && p[-7] == 'E' && p[-8] == '\n' && p[-9] == '\r')
 			{
 				at_status = AT_ERROR;
 				break;
 			}
 			// OK\r\n
-			if (*(buf_ptr - 1) == '\n' && *(buf_ptr - 2) == '\r' &&
-			    *(buf_ptr - 3) == 'K' && *(buf_ptr - 4) == 'O')
+			if (p - g_at_buf > 4 && *(p - 1) == '\n' && *(p - 2) == '\r' && *(p - 3) == 'K' && *(p - 4) == 'O')
 			{
 				at_status = AT_OK;
 				break;
 			}
 			tick = NOW();
 		}
-		if (IS_TIMEOUT(tick, timeout))
-		{
-			break;
-		}
 	}
-	*buf_ptr = '\0';
-
-#ifdef __AT_DEBUG__
-	AT_Callback();
-#endif
-	// buf_ptr  = g_at_buf;
 }
 
-void AT_Send(const char* str, uint32_t timeout)
+/* 统一：发送 + 接收 + 解析 */
+static uint8_t AT_Transceive(const char* cmd, uint32_t timeout)
 {
-	if (!at_usartc_ready)
-	{
-		AT_LOG("AT Send: usart not ready.");
-		return;
-	}
-
-	const char* p = str;
-	while (*p != '\0')
-	{
-		while (USART_GetFlagStatus(g_at_usartc.usartx, USART_FLAG_TXE) == RESET)
-			;
-		USART_SendData(g_at_usartc.usartx, (uint8_t)(*p++));
-	}
-	AT_SendCRLF();
-	if (timeout)
-		AT_Recv(timeout);
-	else
-		AT_Recv(AT_RECV_TIMEOUT);
-}
-
-AT_WIFI_Status AT_WIFI_Connect(char* ssid, const char* password,
-                               const char* mac)
-{
-	uint8_t len = 0;
-	if (AT_Is_Busy())
-		goto go_at_wifi_busy;
-
-	AT_Send("AT+CWMODE=1", AT_RECV_TIMEOUT);
-	AT_Parse();
-	if (at_status != AT_OK)
-		goto go_at_wifi_err;
-
-	if (AT_WIFI_Info(ssid) == AT_WIFI_CONNECTED)
-		goto go_at_wifi_connected;
-
-	if (AT_Is_Busy())
-		goto go_at_wifi_busy;
-
-	buf_ptr = g_at_buf;
-	len = snprintf(g_at_buf, sizeof(g_at_buf), "AT+CWJAP=\"%s\",\"%s\"", ssid,
-	               password);
-	if (mac)
-		snprintf(buf_ptr + len, sizeof(g_at_buf) - len, ",\"%s\"", mac);
-
-	AT_Send(buf_ptr, AT_RECV_TIMEOUT);
-	if (AT_Wait_WIFI_Connected(ssid, AT_WIFI_TIMEOUT))
-		goto go_at_wifi_connected;
-
-go_at_wifi_err:
-	// AT_LOG("WIFI Connect Error: %s.", ssid);
-	return AT_WIFI_ERROR;
-go_at_wifi_connected:
-	// AT_LOG("WIFI Connect: %s.", ssid);
-	return AT_WIFI_CONNECTED;
-go_at_wifi_busy:
-	// AT_LOG("WIFI Connect Busy: %s.", ssid);
-	return AT_WIFI_BUSY;
-}
-
-uint8_t AT_Wait_WIFI_Connected(char* sid, uint32_t timeout)
-{
-	uint32_t tick = NOW();
-	while (AT_WIFI_Info(sid) != AT_WIFI_CONNECTED)
-	{
-		if (IS_TIMEOUT(tick, timeout))
-		{
-			return 0;
-		}
-	}
-	return 1;
-}
-
-AT_WIFI_Status AT_WIFI_Info(char* sid)
-{
-	if (AT_Is_Busy())
-		return AT_WIFI_BUSY;
-	AT_WIFI_Status status = AT_WIFI_UNKNOWN;
-
-	AT_Send("AT+CWSTATE?", AT_RECV_TIMEOUT);
-
-	char* p = strstr(g_at_buf, "CWSTATE:");
-	if (!p)
-		return AT_WIFI_UNKNOWN;
-
-	char parsed_sid[256];
-	if (sscanf(p, "CWSTATE:2,\"%256[^\"]\"", parsed_sid) == 1)
-	{
-		if (sid[0] == '\0')
-		{
-			strcpy(sid, parsed_sid);
-			status = AT_WIFI_CONNECTED;
-		}
-		else if (strcmp(parsed_sid, sid) == 0)
-		{
-			status = AT_WIFI_CONNECTED;
-		}
-	}
-	return status;
-}
-
-uint8_t AT_Is_Busy(void)
-{
-	if (at_status != AT_BUSY)
-	{
-		return 0;
-	}
-
-	AT_Send("AT", AT_RECV_TIMEOUT);
-	AT_Parse();
-	if (at_status == AT_BUSY)
-	{
-		return 1;
-	}
-	return 0;
-}
-
-uint8_t AT_HTTP_Request(const char* url, weather_info_t* info)
-{
-	if (AT_Is_Busy())
-		return 0;
-	// 下载 HTTP 资源
-	AT_LOG("HTTP Request.");
-	at_status = AT_IDLE;
-	uint8_t len =
-	  snprintf(g_at_buf, sizeof(g_at_buf), "AT+HTTPCLIENT=2,1,\"%s\",,,2", url);
-	AT_Send(g_at_buf, AT_HTTP_TIMEOUT);
-	if (at_status != AT_OK)  // AT_Recv置位 OK
-		return 0;
-
-	if (!parse_weather(info))
-		return 0;
-
-	AT_LOG(
-	  "city: %s, province: %s, weather: %2d, temperature: %3.1f, update: %s",
-	  info->city, info->province, info->weather, info->temp_outdoor,
-	  info->update);
-	return 1;
-}
-
-uint8_t AT_Wait_Status(AT_Status status, uint32_t timeout)
-{
-
+	at_status = AT_BUSY;
+	AT_Send(cmd);
 	AT_Recv(timeout);
 	AT_Parse();
-	if (at_status == status)
-		return 1;
-	return 0;
+	return (at_status == AT_OK);
 }
 
-uint8_t AT_Wait_Send(uint32_t timeout)
-{
+/* ================= 状态判断 ================= */
 
+static uint8_t AT_Is_Busy(void)
+{
+	if (at_status != AT_BUSY)
+		return 0;
+
+	AT_Transceive("AT", AT_RECV_TIMEOUT);
+
+	return (at_status == AT_BUSY);
+}
+
+static uint8_t AT_Wait_Send(uint32_t timeout)
+{
 	uint32_t tick = NOW();
 	while (AT_Is_Busy() || at_status != AT_OK)
 	{
@@ -287,141 +168,117 @@ uint8_t AT_Wait_Send(uint32_t timeout)
 	return 1;
 }
 
-uint8_t AT_Is_Echo(void)
-{
-	AT_Send("AT", AT_RECV_TIMEOUT);
-	if (strcmp(g_at_buf, "\r\nOK\r\n") == 0)
-		return 0;
-	return 1;
-}
-
-void AT_Callback(void)
-{
-	AT_LOG("%s", g_at_buf);
-}
+/* ================= AT 解析 ================= */
 
 AT_Status AT_Parse(void)
 {
-	/* 2. 缓冲区为空 / 数据过短 */
-	if (g_at_buf[0] == '\0' || buf_ptr <= g_at_buf + 2)
+	if (g_at_buf[0] == '\0')
 		return AT_INCOMPLETE;
 
-	/* 3. 缓冲区满但未遇到 CRLF */
-	if ((buf_ptr == g_at_buf + AT_RECV_BUF_SIZE - 1) && buf_ptr[-1] != '\n' &&
-	    buf_ptr[-2] != '\r')
+	at_status = AT_UNKNOWN;
+
+	for (size_t i = 0; i < sizeof(at_status_map) / sizeof(at_status_map[0]); i++)
 	{
-		return AT_BUF_FULL;
-	}
-
-	/* 1. 判断是否 AT 回显 */
-	at_echo = (g_at_buf[0] == 'A' && g_at_buf[1] == 'T');
-
-	at_status    = AT_UNKNOWN;
-	char*  start = g_at_buf;
-	char*  end   = buf_ptr;
-	size_t i;
-
-	end  -= 2;
-	*end  = '\0';
-
-	if (at_echo)
-	{
-		while (!(*start == '\r' && *(start + 1) == '\n') && (start < end - 2))
-			start++;
-		start += 2;
-	}
-
-	if ((*start == '\r' && *(start + 1) == '\n') && (start < end - 2))
-		start += 2;
-
-	if (start == end)
-		return at_status;
-
-	/* 4. 表驱动匹配 */
-	if (start != g_at_buf)
-		memmove(g_at_buf, start, end - start + 1);
-
-	/* 8. 表驱动匹配 */
-	for (i = 0; i < AT_STATUS_MAP_SIZE; ++i)
-	{
-		if (strcmp(g_at_buf, at_status_map[i].str) == 0)
+		if (strstr(g_at_buf, at_status_map[i].str))
 		{
 			at_status = at_status_map[i].status;
 			break;
 		}
 	}
-	if (at_status == AT_UNKNOWN && strstr(g_at_buf, "OK"))
-		at_status = AT_OK;
+
+	// if (at_status == AT_UNKNOWN && strstr(g_at_buf, "OK"))
+	// 	at_status = AT_OK;
 
 	return at_status;
 }
 
-static uint8_t parse_weather(weather_info_t* info)
+/* ================= WiFi ================= */
+
+AT_WIFI_Status AT_WIFI_Info(char* ssid)
 {
+	if (AT_Is_Busy())
+		return AT_WIFI_BUSY;
 
-	/*
-	+HTTPCLIENT:266,{"results":[{"location":{"id":"WM6N2PM3WY2K","name":"成都",
-	"country":"CN","path":"成都,成都,四川,中国","timezone":"Asia/Shanghai",
-	"timezone_offset":"+08:00"},"now":{"text":"多云","code":"4","temperature":"10"},
-	"last_update":"2025-12-23T21:20:21+08:00"}]}
-	
-	*/
-	char* p = g_at_buf;
-	char  path[64];
+	AT_Send("AT+CWSTATE?");
+	AT_Recv(AT_RECV_TIMEOUT);
 
-	if (!json_next_string(&p, "\"name\"", info->city, sizeof(info->city)))
+	char* p = strstr(g_at_buf, "CWSTATE:");  // p 指向 C
+	if (!p)
+		return AT_WIFI_UNKNOWN;
+
+	char parsed[64];
+	if (sscanf(p, "CWSTATE:2,\"%63[^\"]\"", parsed) == 1)
+	{
+		if (ssid[0] == '\0' || strcmp(parsed, ssid) == 0)
+		{
+			strcpy(ssid, parsed);
+			return AT_WIFI_CONNECTED;
+		}
+	}
+	return AT_WIFI_UNKNOWN;
+}
+
+AT_WIFI_Status AT_WIFI_Connect(char* ssid, const char* password, const char* mac)
+{
+	if (AT_Is_Busy())
+		return AT_WIFI_BUSY;
+
+	if (AT_WIFI_Info(ssid) == AT_WIFI_CONNECTED)
+		return AT_WIFI_CONNECTED;
+
+	if (!AT_Transceive("AT+CWMODE=1", AT_RECV_TIMEOUT))
+		return AT_WIFI_ERROR;
+
+	snprintf(g_at_buf, sizeof(g_at_buf), mac ? "AT+CWJAP=\"%s\",\"%s\",\"%s\"" : "AT+CWJAP=\"%s\",\"%s\"", ssid,
+	         password, mac);
+
+	if (!AT_Transceive(g_at_buf, AT_WIFI_TIMEOUT))
+		return AT_WIFI_ERROR;
+
+	return AT_WIFI_CONNECTED;
+}
+
+/* ================= HTTP ================= */
+
+uint8_t AT_HTTP_Request(const char* url, weather_info_t* info)
+{
+	if (AT_Is_Busy())
 		return 0;
 
-	if (!json_next_string(&p, "\"path\"", path, sizeof(path)))
+	snprintf(g_at_buf, sizeof(g_at_buf), "AT+HTTPCLIENT=2,1,\"%s\",,,2", url);
+
+	if (!AT_Transceive(g_at_buf, AT_HTTP_TIMEOUT))
 		return 0;
 
-	extract_province_from_path(path, info->province, sizeof(info->province));
+	return parse_weather(info);
+}
 
-	if (!json_next_string(&p, "\"code\"", path, sizeof(path)))
+/* ================= 时间 ================= */
+
+uint8_t AT_Get_Time(time_t* tm)
+{
+	if (AT_Is_Busy())
 		return 0;
 
-	info->weather = atoi(path);
-
-	if (!json_next_string(&p, "\"temperature\"", path, sizeof(path)))
+	if (!AT_Transceive("AT+CIPSNTPCFG=1,8", AT_RECV_TIMEOUT))
 		return 0;
 
-	info->temp_outdoor = atof(path);
+	AT_Send("AT+CIPSNTPTIME?");
+	AT_Recv(AT_RECV_TIMEOUT);
 
-	if (!json_next_string(&p, "\"last_update\"", info->update,
-	                      sizeof(info->update)))
+	if (!parse_time(tm))
 		return 0;
 
+	AT_Show_Time(tm);
 	return 1;
 }
 
-static void extract_province_from_path(const char* path, char* province,
-                                       size_t len)
+static void AT_Show_Time(time_t* tm)
 {
-	char buf[64];
-	strncpy(buf, path, sizeof(buf) - 1);
-	buf[sizeof(buf) - 1] = '\0';
-
-	char* last = strrchr(buf, ',');
-	if (!last)
-	{
-		province[0] = '\0';
-		return;
-	}
-
-	*last = '\0'; /* 去掉最后一段（中国） */
-
-	char* second = strrchr(buf, ',');
-	if (second)
-		second++;
-	else
-		second = buf;
-
-	strncpy(province, second, len - 1);
-	province[len - 1] = '\0';
+	AT_LOG("%04d-%02d-%02d %02d:%02d:%02d", tm->year, tm->month, tm->day, tm->hour, tm->min, tm->sec);
 }
 
-static int json_next_string(char** pp, const char* key, char* out,
-                            size_t out_len)
+static int json_next_string(char** pp, const char* key, char* out, size_t out_len)
 {
 	char* p = strstr(*pp, key);
 	if (!p)
@@ -453,31 +310,65 @@ static int json_next_string(char** pp, const char* key, char* out,
 	return 1;
 }
 
-uint8_t AT_Get_Time(time_t* tm)
+static void extract_province_from_path(const char* path, char* province, size_t len)
 {
+	char buf[64];
+	strncpy(buf, path, sizeof(buf) - 1);
+	buf[sizeof(buf) - 1] = '\0';
 
-	if (AT_Is_Busy())
-		return 0;
-
-	AT_Send("AT+CIPSNTPCFG=1,8", AT_RECV_TIMEOUT);
-	AT_Parse();
-	if (at_status != AT_OK)
-		return 0;
-
-	AT_Send("AT+CIPSNTPTIME?", AT_RECV_TIMEOUT);
-	if (!parse_time(tm))
+	char* last = strrchr(buf, ',');
+	if (!last)
 	{
-		at_status = AT_ERROR;
-		return 0;
+		province[0] = '\0';
+		return;
 	}
-	AT_Show_Time(tm);
-	return 1;
+
+	*last = '\0'; /* 去掉最后一段（中国） */
+
+	char* second = strrchr(buf, ',');
+	if (second)
+		second++;
+	else
+		second = buf;
+
+	strncpy(province, second, len - 1);
+	province[len - 1] = '\0';
 }
-void AT_Show_Time(time_t* tm)
+
+static uint8_t parse_weather(weather_info_t* info)
 {
-	// 打印格式: 年月日 时:分:秒
-	AT_LOG("%04d-%2d-%02d %02d:%02d:%02d", tm->year, tm->month, tm->day,
-	       tm->hour, tm->min, tm->sec);
+	/*
+	+HTTPCLIENT:266,{"results":[{"location":{"id":"WM6N2PM3WY2K","name":"成都",
+	"country":"CN","path":"成都,成都,四川,中国","timezone":"Asia/Shanghai",
+	"timezone_offset":"+08:00"},"now":{"text":"多云","code":"4","temperature":"10"},
+	"last_update":"2025-12-23T21:20:21+08:00"}]}
+	
+	*/
+	char* p = g_at_buf;
+	char  tmp[64];
+
+	if (!json_next_string(&p, "\"name\"", info->city, sizeof(info->city)))
+		return 0;
+
+	if (!json_next_string(&p, "\"path\"", tmp, sizeof(tmp)))
+		return 0;
+
+	extract_province_from_path(tmp, info->province, sizeof(info->province));
+
+	if (!json_next_string(&p, "\"code\"", tmp, sizeof(tmp)))
+		return 0;
+
+	info->weather = atoi(tmp);
+
+	if (!json_next_string(&p, "\"temperature\"", tmp, sizeof(tmp)))
+		return 0;
+
+	info->temp_outdoor = atof(tmp);
+
+	if (!json_next_string(&p, "\"last_update\"", info->update, sizeof(info->update)))
+		return 0;
+
+	return 1;
 }
 
 static uint8_t parse_time(time_t* t_tm)
@@ -533,3 +424,4 @@ static uint8_t parse_time(time_t* t_tm)
 
 	return 1;
 }
+

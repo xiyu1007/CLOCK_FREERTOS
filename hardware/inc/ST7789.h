@@ -9,8 +9,10 @@
 #include "font.h"
 #include "image.h"
 #include "u_delay.h"
+#include "u_log.h"
 
-#define ST7789_LOG(fmt, ...) printf("[ST7789] FILE: %s LINE: %d\r\n" fmt "\r\n", __FILE__, __LINE__, ##__VA_ARGS__)
+#define ST7789_LOG(fmt, ...) LOG("[ST7789] " fmt "\r\n", ##__VA_ARGS__)
+// #define ST7789_LOG(fmt, ...) printf("[ST7789] FILE: %s LINE: %d\r\n" fmt "\r\n", __FILE__, __LINE__, ##__VA_ARGS__)
 
 #define SCREEN           g_TFT_LCD
 #define WIDTH            SCREEN.width

@@ -11,7 +11,10 @@
 #define LOG_USART         SERIAL_USART
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE* f)
 
-#define log(fmt, ...)     printf("[LOG] FILE: %s LINE: %d\r\n" fmt "\r\n", __FILE__, __LINE__, ##__VA_ARGS__)
+#define LOG               printf
+#define log(fmt, ...)     LOG("[LOG] " fmt "\r\n", ##__VA_ARGS__)
+// #define log(fmt, ...)     LOG("[LOG] FILE: %s LINE: %d\r\n" fmt "\r\n", __FILE__, __LINE__, ##__VA_ARGS__)
+
 
 #define LOG_BUF_SIZE      256
 

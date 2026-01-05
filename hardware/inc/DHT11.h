@@ -6,6 +6,7 @@
 #include <string.h>
 #include "u_bsp_rcc.h"
 #include "u_timer.h"
+#include "u_log.h"
 
 /* ===== Ó²¼þÅäÖÃ ===== */
 #define DHT11_PORT           GPIOE
@@ -28,7 +29,7 @@
 #define DHT11_SDA_L          GPIO_ResetBits(DHT11_PORT, DHT11_PIN)
 #define DHT11_SDA_READ       GPIO_ReadInputDataBit(DHT11_PORT, DHT11_PIN)
 
-#define DHT11_LOG(fmt, ...)  printf("[DHT11] " fmt "\r\n", ##__VA_ARGS__)
+#define DHT11_LOG(fmt, ...)  LOG("[DHT11] " fmt "\r\n", ##__VA_ARGS__)
 
 /* ===== ½Ó¿Ú ===== */
 void    DHT11_Init(void);

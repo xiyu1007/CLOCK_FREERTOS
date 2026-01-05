@@ -63,11 +63,11 @@ uint8_t DHT11_Read(uint8_t *data)
 
     /* 2. DHT11 响应 */
     if (DHT11_WaitLevel(Bit_SET, DHT11_TIMEOUT_US)) {
-        DHT11_LOG("DHT11 response timeout, check wiring!\r\n"); // DHT11 响应超时,检查连接是否正常
+        DHT11_LOG("DHT11 response timeout, check wiring!"); // DHT11 响应超时,检查连接是否正常
         return FLAG_DHT11_ERROR;
     }
     if (DHT11_WaitLevel(Bit_RESET, DHT11_TIMEOUT_US)) {
-        DHT11_LOG("DHT11 response reset timeout, check wiring!\r\n"); // DHT11 响应重置超时,检查连接是否正常
+        DHT11_LOG("DHT11 response reset timeout, check wiring!"); // DHT11 响应重置超时,检查连接是否正常
         return FLAG_DHT11_ERROR;
     }
 
@@ -76,13 +76,13 @@ uint8_t DHT11_Read(uint8_t *data)
 
         /* 等待 发送起始低信号*/
         if (DHT11_WaitLevel(Bit_SET, DHT11_TIMEOUT_US)){
-            DHT11_LOG("Start-low signal timeout, check wiring!\r\n"); // 等待起始低信号超时,检查连接是否正常
+            DHT11_LOG("Start-low signal timeout, check wiring!"); // 等待起始低信号超时,检查连接是否正常
             return FLAG_DHT11_ERROR;
         }
 
         /* 等待起始低信号结束（进入高电平） */
         if (DHT11_WaitLevel(Bit_RESET, DHT11_TIMEOUT_US)) {
-            DHT11_LOG("Start-high signal timeout, check wiring!\r\n"); // 等待起始高信号超时,检查连接是否正常
+            DHT11_LOG("Start-high signal timeout, check wiring!"); // 等待起始高信号超时,检查连接是否正常
             return FLAG_DHT11_ERROR;
         }
 
@@ -126,7 +126,7 @@ uint8_t DHT11_Get(float *temp, float *humi)
         DHT11_Parse(data, temp, humi);
         return 1;
     } else {
-        DHT11_LOG("Get data failed.\r\n"); // 获取数据失败
+        // DHT11_LOG("Get data failed."); // 获取数据失败
         return 0;
     }
 }
