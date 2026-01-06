@@ -659,6 +659,11 @@
               <FileType>1</FileType>
               <FilePath>..\third_lib\freertos\portable\port.c</FilePath>
             </File>
+            <File>
+              <FileName>FreeRTOSConfig.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\third_lib\freertos\portable\FreeRTOSConfig.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

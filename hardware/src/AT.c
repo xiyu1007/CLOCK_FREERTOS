@@ -25,9 +25,15 @@ static const AT_StatusMap at_status_map[] = {
 };
 
 
-static uint8_t AT_Wait_Send(uint32_t timeout);
-static uint8_t AT_Is_Busy(void);
+/* ================= 内部函数声明 ================= */
+static void      at_usart_send_str(const char* s);
+static void      AT_Send(const char *cmd);
+static void      AT_Recv(uint32_t timeout);
 static uint8_t AT_Transceive(const char* cmd, uint32_t timeout);
+static void      AT_SendCRLF(void);
+static uint8_t AT_Wait_Send(uint32_t timeout);
+static uint8_t   AT_Is_Busy(void);
+static AT_Status AT_Parse(void);
 
 static int     json_next_string(char** pp, const char* key, char* out, size_t out_len);
 static void    extract_province_from_path(const char* path, char* province, size_t len);
@@ -36,9 +42,7 @@ static uint8_t parse_time(time_t* t_tm);
 static void AT_Show_Time(time_t* tm);
 
 
-
 /* ================= AT 初始化 ================= */
-
 uint8_t AT_Init(void)
 {
 	if (at_ready)
@@ -68,8 +72,96 @@ uint8_t AT_Init(void)
 	return 1;
 }
 
-/* ================= USART 底层 ================= */
+void AT_Reset(void)
+{
+	AT_Send("AT+RST");
+}
 
+/* ================= WiFi ================= */
+AT_WIFI_Status AT_WIFI_Info(char* ssid)
+{
+	if (AT_Is_Busy())
+		return AT_WIFI_BUSY;
+
+	AT_Send("AT+CWSTATE?");
+	AT_Recv(AT_RECV_TIMEOUT);
+
+	char* p = strstr(g_at_buf, "CWSTATE:");  // p 指向 C
+	if (!p)
+		return AT_WIFI_UNKNOWN;
+
+	char parsed[64];
+	if (sscanf(p, "CWSTATE:2,\"%63[^\"]\"", parsed) == 1)
+	{
+		if (ssid[0] == '\0' || strcmp(parsed, ssid) == 0)
+		{
+			strcpy(ssid, parsed);
+			return AT_WIFI_CONNECTED;
+		}
+	}
+	return AT_WIFI_UNKNOWN;
+}
+
+AT_WIFI_Status AT_WIFI_Connect(char* ssid, const char* password, const char* mac)
+{
+	if (AT_Is_Busy())
+		return AT_WIFI_BUSY;
+
+	if (AT_WIFI_Info(ssid) == AT_WIFI_CONNECTED)
+		return AT_WIFI_CONNECTED;
+
+	if (!AT_Transceive("AT+CWMODE=1", AT_RECV_TIMEOUT))
+		return AT_WIFI_ERROR;
+
+	snprintf(g_at_buf, sizeof(g_at_buf), mac ? "AT+CWJAP=\"%s\",\"%s\",\"%s\"" : "AT+CWJAP=\"%s\",\"%s\"", ssid,
+	         password, mac);
+
+	if (!AT_Transceive(g_at_buf, AT_WIFI_TIMEOUT))
+		return AT_WIFI_ERROR;
+
+	return AT_WIFI_CONNECTED;
+}
+
+/* ================= HTTP ================= */
+uint8_t AT_HTTP_Request(const char* url, weather_info_t* info)
+{
+	if (AT_Is_Busy())
+		return 0;
+
+	snprintf(g_at_buf, sizeof(g_at_buf), "AT+HTTPCLIENT=2,1,\"%s\",,,2", url);
+
+	if (!AT_Transceive(g_at_buf, AT_HTTP_TIMEOUT))
+		return 0;
+
+	AT_LOG("AT_HTTP: \r\n%s", g_at_buf);
+	return parse_weather(info);
+}
+
+/* ================= 时间 ================= */
+uint8_t AT_Get_Time(time_t* tm)
+{
+	if (AT_Is_Busy())
+		return 0;
+
+	if (!AT_Transceive("AT+CIPSNTPCFG=1,8", AT_RECV_TIMEOUT))
+		return 0;
+
+	AT_Send("AT+CIPSNTPTIME?");
+	AT_Recv(AT_RECV_TIMEOUT);
+
+	if (!parse_time(tm))
+		return 0;
+
+	AT_Show_Time(tm);
+	return 1;
+}
+
+static void AT_Show_Time(time_t* tm)
+{
+	AT_LOG("%04d-%02d-%02d %02d:%02d:%02d", tm->year, tm->month, tm->day, tm->hour, tm->min, tm->sec);
+}
+
+/* ================= USART 底层 ================= */
 static void at_usart_send_str(const char* s)
 {
 	while (*s){
@@ -81,13 +173,12 @@ static void at_usart_send_str(const char* s)
 }
 
 /* ================= AT 基础操作 ================= */
-
-void AT_SendCRLF(void)
+static void AT_SendCRLF(void)
 {
     at_usart_send_str("\r\n");
 }
 
-void AT_Send(const char* cmd)
+static void AT_Send(const char* cmd)
 {
 	if (!at_ready)
 		return;
@@ -143,7 +234,6 @@ static uint8_t AT_Transceive(const char* cmd, uint32_t timeout)
 }
 
 /* ================= 状态判断 ================= */
-
 static uint8_t AT_Is_Busy(void)
 {
 	if (at_status != AT_BUSY)
@@ -169,8 +259,7 @@ static uint8_t AT_Wait_Send(uint32_t timeout)
 }
 
 /* ================= AT 解析 ================= */
-
-AT_Status AT_Parse(void)
+static AT_Status AT_Parse(void)
 {
 	if (g_at_buf[0] == '\0')
 		return AT_INCOMPLETE;
@@ -192,91 +281,6 @@ AT_Status AT_Parse(void)
 	return at_status;
 }
 
-/* ================= WiFi ================= */
-
-AT_WIFI_Status AT_WIFI_Info(char* ssid)
-{
-	if (AT_Is_Busy())
-		return AT_WIFI_BUSY;
-
-	AT_Send("AT+CWSTATE?");
-	AT_Recv(AT_RECV_TIMEOUT);
-
-	char* p = strstr(g_at_buf, "CWSTATE:");  // p 指向 C
-	if (!p)
-		return AT_WIFI_UNKNOWN;
-
-	char parsed[64];
-	if (sscanf(p, "CWSTATE:2,\"%63[^\"]\"", parsed) == 1)
-	{
-		if (ssid[0] == '\0' || strcmp(parsed, ssid) == 0)
-		{
-			strcpy(ssid, parsed);
-			return AT_WIFI_CONNECTED;
-		}
-	}
-	return AT_WIFI_UNKNOWN;
-}
-
-AT_WIFI_Status AT_WIFI_Connect(char* ssid, const char* password, const char* mac)
-{
-	if (AT_Is_Busy())
-		return AT_WIFI_BUSY;
-
-	if (AT_WIFI_Info(ssid) == AT_WIFI_CONNECTED)
-		return AT_WIFI_CONNECTED;
-
-	if (!AT_Transceive("AT+CWMODE=1", AT_RECV_TIMEOUT))
-		return AT_WIFI_ERROR;
-
-	snprintf(g_at_buf, sizeof(g_at_buf), mac ? "AT+CWJAP=\"%s\",\"%s\",\"%s\"" : "AT+CWJAP=\"%s\",\"%s\"", ssid,
-	         password, mac);
-
-	if (!AT_Transceive(g_at_buf, AT_WIFI_TIMEOUT))
-		return AT_WIFI_ERROR;
-
-	return AT_WIFI_CONNECTED;
-}
-
-/* ================= HTTP ================= */
-
-uint8_t AT_HTTP_Request(const char* url, weather_info_t* info)
-{
-	if (AT_Is_Busy())
-		return 0;
-
-	snprintf(g_at_buf, sizeof(g_at_buf), "AT+HTTPCLIENT=2,1,\"%s\",,,2", url);
-
-	if (!AT_Transceive(g_at_buf, AT_HTTP_TIMEOUT))
-		return 0;
-
-	return parse_weather(info);
-}
-
-/* ================= 时间 ================= */
-
-uint8_t AT_Get_Time(time_t* tm)
-{
-	if (AT_Is_Busy())
-		return 0;
-
-	if (!AT_Transceive("AT+CIPSNTPCFG=1,8", AT_RECV_TIMEOUT))
-		return 0;
-
-	AT_Send("AT+CIPSNTPTIME?");
-	AT_Recv(AT_RECV_TIMEOUT);
-
-	if (!parse_time(tm))
-		return 0;
-
-	AT_Show_Time(tm);
-	return 1;
-}
-
-static void AT_Show_Time(time_t* tm)
-{
-	AT_LOG("%04d-%02d-%02d %02d:%02d:%02d", tm->year, tm->month, tm->day, tm->hour, tm->min, tm->sec);
-}
 
 static int json_next_string(char** pp, const char* key, char* out, size_t out_len)
 {

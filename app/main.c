@@ -1,20 +1,20 @@
-#include "FreeRTOS.h"
-#include "task.h"
 #include "u_header.h"
 
-
-// 原子变量
-uint8_t atomic_flag = 0;
-
+/*----------------------------- 全局变量 -----------------------------*/
+EventGroupHandle_t g_sys_event;
+/* AT命令互斥信号量 */
+SemaphoreHandle_t  semAT;
+/* ST7789互斥量 */
+SemaphoreHandle_t  semST7789;
 char ssid[128]     = "";
 char password[128] = "12345678";
 
-system_status_t g_s_s = { 0 };
+TaskHandle_t xLogTaskHandle = NULL;
 
 weather_info_t  g_weather_info = {
 	.temp_outdoor = 0.0,
 	.humidity = 0.0,
-	.city = "成都",
+	.city = "毕节",
 	.tmp_indoor = 0.0,
 	.humidity = 0.0,
 	.weather = 0,
@@ -28,234 +28,339 @@ weather_info_t  g_weather_info = {
 		.year = 2025,
 	},
 };
-char main_buff[1024] = { 0 };
 
-static uint32_t dht11_counter = 0;
-static uint32_t http_counter  = 0;
-static uint32_t wifi_counter  = 0;
-static uint32_t time_counter  = 0;
+void vTaskRun_DHT11(void* pvParameters);
+void vTaskRun_WIFI(void* pvParameters);
+void vTaskRun_AT_Get_Time(void* pvParameters);
+void vTaskRun_AT_HTTP(void* pvParameters);
+void vTaskRun_Time_tick(void* pvParameters);
+void vTaskRun_UI(void* pvParameters);
+void vTaskRun_Exception(void* pvParameters);
+void vTaskRun_AT_init(void* pvParameters);
 
-void vTaskRun(void *pvParameters)
+void sys_init(void *pvParameters);
+extern void vTaskRun_LogRx(void *pvParameters);
+extern void u_initpage(void* pvParameters);
+extern void u_homepage(void* pvParameters);
+
+void sys_init(void *pvParameters)
 {
-    (void)pvParameters;
+	(void)pvParameters;
+	EventBits_t init_bits = xEventGroupWaitBits(g_sys_event, EVT_HOMEPAGE_DONE,
+	                                            pdFALSE,  // 不清除
+	                                            pdTRUE,   // 等待所有位
+	                                            portMAX_DELAY);
 
-    while (1)
-	{
-        update_system_status();
-        update_system();
-        vTaskDelay(pdMS_TO_TICKS(TIME_IDLE));
-	}
+	// 创建任务
+    xTaskCreate(vTaskRun_Time_tick, "TimeTick", 512, NULL, BASE_PRIORITY + 7, NULL);
+    xTaskCreate(vTaskRun_Exception, "Exception", 512, NULL, BASE_PRIORITY + 7, NULL);
+
+	if (!(xEventGroupGetBits(g_sys_event) & EVT_AT_INITED))
+		xTaskCreate(vTaskRun_AT_init, "AT_Init", 512, NULL, BASE_PRIORITY + 6, NULL);
+
+    xTaskCreate(vTaskRun_UI, "UI", 512, NULL, BASE_PRIORITY + 5, NULL);
+
+    xTaskCreate(vTaskRun_LogRx, "LogRx", 512, NULL, BASE_PRIORITY + 4, &xLogTaskHandle);
+
+    xTaskCreate(vTaskRun_WIFI, "WIFI", 512, NULL, BASE_PRIORITY + 3, NULL);
+//    xTaskCreate(vTaskRun_DHT11, "DHT11", 512, NULL, BASE_PRIORITY + 3, NULL);
+
+    xTaskCreate(vTaskRun_AT_Get_Time, "AT_Time", 512, NULL, BASE_PRIORITY + 2, NULL);
+    xTaskCreate(vTaskRun_AT_HTTP, "AT_HTTP", 512, NULL, BASE_PRIORITY + 2, NULL);
+
+    // 初始化完成，自删任务
+    vTaskDelete(NULL);
 }
 
 int main(void)
 {
-    xTaskCreate(u_initpage, "Init", 1024, NULL, 1, NULL);
-    vTaskStartScheduler();
 
+	/* 系统事件组初始化 */
+	g_sys_event = xEventGroupCreate();
+	semAT       = xSemaphoreCreateMutex();  // 创建即可用的互斥信号量
+	semST7789   = xSemaphoreCreateMutex();
+	xTaskCreate(u_initpage, "Init", 1024, NULL, BASE_PRIORITY, NULL);
+	xTaskCreate(u_homepage, "Home", 1024, NULL, BASE_PRIORITY, NULL);
+	xTaskCreate(sys_init, "sys_init", 1024, NULL, BASE_PRIORITY, NULL);
+	vTaskStartScheduler();
+
+	
 	while (1)
 	{
-
 	}
 
 	// return 0;
 }
 
-void TIM4_IRQHandler(void)
+/* ---------------------------------所有任务---------------------------------------*/
+/*------------------------ 室内环境更新 ------------------------*/
+void vTaskRun_DHT11(void* pvParameters)
 {
-	if (TIM_GetITStatus(TIM4, TIM_IT_Update) == RESET)
-		return;
-
-	if (g_s_s.init_page_over)
+	(void)pvParameters;
+	// TickType_t last_wake = xTaskGetTickCount();
+	while (1)
 	{
-		static uint8_t  colon_state     = 0;
-		static uint16_t half_second_cnt = 0;
-		static uint16_t second_cnt      = 0;
+		// vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(TIME_DHT11)); // 会last_wake把更新成下一次应该唤醒的时刻
+		vTaskDelay(pdMS_TO_TICKS(TIME_DHT11));
 
-		half_second_cnt++;
-		second_cnt++;
-
-		// 500ms任务
-		if (half_second_cnt >= 499)
+		float tmp, humi;
+		if (DHT11_Get(&tmp, &humi))
 		{
-			half_second_cnt  = 0;
-			colon_state     ^= 1;
-			u_update_colon(colon_state ? HOME_TIME_COLON_COLOR :
-			                             HOME_TIME_COLON_COLOR2);
+			// 更新状态
+			g_weather_info.tmp_indoor = tmp;
+			g_weather_info.humidity   = humi;
+			xEventGroupSetBits(g_sys_event, EVT_DHT11_UPDATED);
 		}
-		// 1000ms任务
-		if (second_cnt >= 999)
+	}
+}
+
+/*------------------------ WiFi任务 ------------------------*/
+void vTaskRun_WIFI(void* pvParameters)
+{
+	(void)pvParameters;
+
+	const EventBits_t wifi_wait_bits = EVT_WIFI_NEED_CONNECT;
+
+	while (1)
+	{
+		// 等待 WiFi 相关事件触发（连接成功或信息变化）
+		EventBits_t bits = xEventGroupWaitBits(g_sys_event, wifi_wait_bits,
+		                                       pdFALSE,  // 等待后清除这些位
+		                                       pdFALSE,  // 等待任意一个位
+		                                       portMAX_DELAY);
+
+		xEventGroupClearBits(g_sys_event, EVT_WIFI_STATUS);
+		if (xSemaphoreTake(semAT, TIME_SEM_TAKE))
 		{
-			second_cnt = 0;
-			g_weather_info.time.sec++;
-			u_update_time(&g_weather_info.time);
-			if (!g_s_s.date_updated)
+			// 获取 WiFi 状态
+			if (AT_WIFI_Info(ssid) == AT_WIFI_CONNECTED)
 			{
-				u_update_date(&g_weather_info.time);
-				g_s_s.date_updated = 1;
+				xEventGroupClearBits(g_sys_event, EVT_WIFI_NEED_CONNECT);
+				xEventGroupSetBits(g_sys_event, EVT_WIFI_STATUS);
 			}
-		}
-	}
-	g_ms_tick++;
-	dht11_counter++;
-	http_counter++;
-	wifi_counter++;
-	time_counter++;
-	TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
-}
-
-static void update_system_status(void)
-{
-	uint32_t tick = NOW();
-	if (tick != 0)
-	{
-		// DHT11室内温度更新（每5秒）
-		if (dht11_counter >= TIME_GET_TMP_INDOOR)
-		{
-			dht11_counter       = 0;
-			g_s_s.dht11_updated = 0;  // 清除标志，准备重新获取
-		}
-
-		// HTTP室外温度更新（每30秒）
-		if (http_counter >= TIME_GET_TMP_OUTDOOR)
-		{
-			http_counter         = 0;
-			g_s_s.http_requested = 0;
-		}
-
-		// WiFi连接检查（每10秒）
-		if (wifi_counter >= TIME_CHECK_WIFI)
-		{
-			wifi_counter         = 0;
-			g_s_s.wifi_connected = (AT_WIFI_Info(SSID) == AT_WIFI_CONNECTED);
-		}
-
-		// 时间同步（每60秒）
-		if (time_counter >= TIME_GET_TIME)
-		{
-			time_counter       = 0;
-			g_s_s.time_updated = 0;
+			xSemaphoreGive(semAT);
 		}
 	}
 }
 
-// 根据状态更新系统
-static void update_system(void)
+/*------------------------ AT获取时间任务 ------------------------*/
+void vTaskRun_AT_Get_Time(void* pvParameters)
 {
+	(void)pvParameters;
 
-	if (!g_s_s.dht11_updated)
+	while (1)
 	{
-		DHT11_Get(&g_weather_info.tmp_indoor, &g_weather_info.humidity);
-		u_update_indoor_environment(g_weather_info.tmp_indoor,
-		                            g_weather_info.humidity);
-		g_s_s.dht11_updated = 1;
-		dht11_counter       = 0;
-		log("DHT11 updated. Temp=%.2f, Humidity=%.2f.",
-		    g_weather_info.tmp_indoor, g_weather_info.humidity);
-	}
+		vTaskDelay(pdMS_TO_TICKS(TIME_GET_TIME));
 
-	if (!g_s_s.at_initiated)
-	{
-		if (AT_Init())
-			g_s_s.at_initiated = 1;
-	}
+		if (!xSemaphoreTake(semAT, TIME_SEM_TAKE)) continue;
 
-	if (g_s_s.wifi_info_change)
-	{
-		char* p = log_buf_get();
-		if (!p)
-			return;
-		char ssid_buf[128]     = { 0 };
-		char password_buf[128] = { 0 };
-		if (sscanf(p, "WIFI: \"%127[^\"]\" \"%127[^\"]\"", ssid_buf,
-		           password_buf) != 2)
+		if (AT_WIFI_Info(ssid) != AT_WIFI_CONNECTED)
 		{
-			log("WIFI Info Error. Received SSID='%s', PASSWORD='%s'.", ssid_buf,
-			    password_buf);
-			log("Correct format: WIFI: \"SSID\" \"PASSWORD\". Example: WIFI: "
-			    "\"MyWiFi\" \"12345678\"");
+			xEventGroupSetBits(g_sys_event, EVT_WIFI_NEED_CONNECT);
+			xSemaphoreGive(semAT);
+			continue;
 		}
-		else
-		{
-			strcpy(ssid, ssid_buf);
-			strcpy(password, password_buf);
-			log("WIFI Info Changed. SSID='%s', PASSWORD='%s'", ssid, password);
-			g_s_s.wifi_connected = 0;
-		}
-		g_s_s.wifi_info_change = 0;
-	}
 
-	if (!g_s_s.wifi_connected)
-	{
-		if (AT_WIFI_Connect(SSID, PASSWORD, 0) == AT_WIFI_CONNECTED)
+		time_t recv_tm = g_weather_info.time;
+		if (AT_Get_Time(&recv_tm))
 		{
-			g_s_s.wifi_connected = 1;
-			wifi_counter         = 0;
-			u_update_wifi_img(&g_s_s);
-			log("WIFI connected: %s.", SSID);
-		}
-		else
-		{
-			log("WIFI connect error: %s.", SSID);
-		}
-	}
-
-	if (!g_s_s.time_updated)
-	{
-		if (AT_WIFI_Info(SSID) != AT_WIFI_CONNECTED)
-		{
-			g_s_s.wifi_connected = 0;
-			u_update_wifi_img(&g_s_s);
-			log("Time update fail NO WIFI: %s.", SSID);
-		}
-		else
-		{
-			time_t recv_tm = g_weather_info.time;
-			if (AT_Get_Time(&recv_tm))
+			// if (memcmp(&recv_tm, &g_weather_info.time, sizeof(time_t)) != 0) {
+			if (1)
 			{
-				__disable_irq();
+				xEventGroupSetBits(g_sys_event, EVT_TIME_UPDATED);
+				xEventGroupSetBits(g_sys_event, EVT_DATE_UPDATED);
 				g_weather_info.time = recv_tm;
-				// g_weather_info.time.sec++;
-				u_update_time(&g_weather_info.time);
-				u_update_date(&g_weather_info.time);
-				TIM4->CNT = 0;
-				// g_ms_tick = 0;
-				// TIM_SetCounter(TIM4, 0);
-				__enable_irq();
-				g_s_s.time_updated = 1;
-				g_s_s.date_updated = 1;
-				time_counter       = 0;
-				wifi_counter       = 0;
-				log("Time updated. Time=%4d/%02d/%02d %02d:%02d:%02d.",
-				    g_weather_info.time.year, g_weather_info.time.month,
-				    g_weather_info.time.day, g_weather_info.time.hour,
-				    g_weather_info.time.min, g_weather_info.time.sec);
-			}
-			else
-			{
-				log("Time update fail AT GET: %s.", SSID);
 			}
 		}
-	}
 
-	if (!g_s_s.http_requested)
+		xSemaphoreGive(semAT);
+	}
+}
+
+/*------------------------ AT HTTP任务 ------------------------*/
+void vTaskRun_AT_HTTP(void* pvParameters)
+{
+	while (1)
 	{
-		if (AT_WIFI_Info(SSID) != AT_WIFI_CONNECTED)
+		if (!xSemaphoreTake(semAT, TIME_SEM_TAKE)) continue;
+
+		// 保证WiFi已连接
+		if (AT_WIFI_Info(ssid) != AT_WIFI_CONNECTED)
 		{
-			g_s_s.wifi_connected = 0;
-			u_update_wifi_img(&g_s_s);
-			log("HTTP request error NO WIFI: %s.", SSID);
+			xEventGroupSetBits(g_sys_event, EVT_WIFI_NEED_CONNECT);
+			xSemaphoreGive(semAT);
+			continue;
 		}
-		else if (AT_HTTP_Request(URL, &g_weather_info))
+
+		if (AT_HTTP_Request(URL, &g_weather_info))
 		{
-			u_update_outdoor_environment(g_weather_info.temp_outdoor);
-			u_update_tmp_img(&g_weather_info);
-			u_update_weather_img(&g_weather_info);
-			g_s_s.http_requested = 1;
-			http_counter         = 0;
-			wifi_counter         = 0;
-			log("HTTP request success. City=%s, Temp=%.2f, Weather=%2d.",
-			    g_weather_info.city, g_weather_info.temp_outdoor,
-			    g_weather_info.weather);
+			// 设置事件标志
+			xEventGroupSetBits(g_sys_event, EVT_HTTP_REQUEST);
+		}
+
+		xSemaphoreGive(semAT);
+
+		vTaskDelay(pdMS_TO_TICKS(TIME_HTTP));
+	}
+}
+
+/*------------------------ 时间自增 & 冒号 ------------------------*/
+void vTaskRun_Time_tick(void* pvParameters)
+{
+	TickType_t last_wake   = xTaskGetTickCount();
+	uint8_t    colon_state = 0;
+
+	while (1)
+	{
+		vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(500));
+
+		colon_state ^= 1;
+
+		if (colon_state == 0)
+		{
+			g_weather_info.time.sec++;
+			if (g_weather_info.time.sec >= 60)
+			{
+				g_weather_info.time.sec = 0;
+				g_weather_info.time.min++;
+			}
+			if (g_weather_info.time.min >= 60)
+			{
+				g_weather_info.time.min = 0;
+				g_weather_info.time.hour++;
+			}
+			if (g_weather_info.time.hour >= 24)
+			{
+				g_weather_info.time.hour = 0;
+				g_weather_info.time.day++;
+				g_weather_info.time.week = (g_weather_info.time.week + 1) % 7;
+				xEventGroupSetBits(g_sys_event, EVT_DATE_UPDATED);
+			}
+			xEventGroupSetBits(g_sys_event, EVT_COLON_TOGGLE);
+			xEventGroupSetBits(g_sys_event, EVT_TIME_UPDATED);
+		}
+		else
+		{
+			xEventGroupSetBits(g_sys_event, EVT_COLON_TOGGLE2);
 		}
 	}
 }
+
+void vTaskRun_UI(void* pvParameters)
+{
+	const EventBits_t ui_bits = EVT_COLON_TOGGLE | EVT_COLON_TOGGLE2 | EVT_TIME_UPDATED | EVT_DHT11_UPDATED |
+	                            EVT_HTTP_REQUEST | EVT_WIFI_NEED_CONNECT | EVT_WIFI_STATUS;
+
+	while (1)
+	{
+		EventBits_t bits = xEventGroupWaitBits(g_sys_event, ui_bits, pdFALSE, pdFALSE, portMAX_DELAY);
+
+		if (xSemaphoreTake(semST7789, portMAX_DELAY))
+		{
+			if (bits & EVT_COLON_TOGGLE2)
+			{
+				u_update_colon(1);
+				xEventGroupClearBits(g_sys_event, EVT_COLON_TOGGLE2);
+			}
+
+			if (bits & EVT_COLON_TOGGLE)
+			{
+				u_update_colon(0);
+				xEventGroupClearBits(g_sys_event, EVT_COLON_TOGGLE);
+			}
+
+			if (bits & EVT_TIME_UPDATED)
+			{
+				u_update_time(&g_weather_info.time);
+				xEventGroupClearBits(g_sys_event, EVT_TIME_UPDATED);
+			}
+
+			if (bits & EVT_DATE_UPDATED)
+			{
+				u_update_date(&g_weather_info.time);
+				xEventGroupClearBits(g_sys_event, EVT_DATE_UPDATED);
+			}
+
+			if (bits & EVT_DHT11_UPDATED)
+			{
+				u_update_indoor_environment(g_weather_info.tmp_indoor, g_weather_info.humidity);
+				xEventGroupClearBits(g_sys_event, EVT_DHT11_UPDATED);
+			}
+
+			/* 
+			EVT_WIFI_NEED_CONNECT 由 vTaskRun_AT_HTTP 或 vTaskRun_AT_Get_Time 任务设置，指示从WIFI需要连接
+			EVT_WIFI_NEED_CONNECT：0->1, 则刷新图标 
+
+			EVT_WIFI_STATUS 由 vTaskRun_WIFI 任务设置，指示从未连接到连接成功
+			EVT_WIFI_STATUS ：0->1, 则刷新图标 
+			*/
+			if (bits & (EVT_WIFI_STATUS | EVT_WIFI_NEED_CONNECT))
+			{
+				xEventGroupClearBits(g_sys_event, EVT_WIFI_STATUS); // 仅清除 从未连接到连接成功
+				u_update_wifi_img();
+			}
+
+			if (bits & EVT_HTTP_REQUEST)
+			{
+				u_update_city(g_weather_info.city);
+				u_update_outdoor_environment(g_weather_info.temp_outdoor);
+				u_update_tmp_img(&g_weather_info);
+				u_update_weather_img(&g_weather_info);
+				xEventGroupClearBits(g_sys_event, EVT_HTTP_REQUEST);
+			}
+
+			xSemaphoreGive(semST7789);
+		}
+	}
+}
+
+/*------------------------ 异常任务 ------------------------*/
+void vTaskRun_Exception(void* pvParameters)
+{
+	(void)pvParameters;
+	while (1)
+	{
+		// 等待异常事件
+		EventBits_t bits = xEventGroupWaitBits(g_sys_event, EVT_EXCEPTION,
+		                                       pdTRUE,   // 自动清除
+		                                       pdFALSE,  // 等待任意一个
+		                                       portMAX_DELAY);
+		if (!(bits & EVT_AT_INITED))
+		{
+			// AT初始化异常
+			AT_Reset();
+			log("EXCEPTION: AT_INIT failed, triggering reset!");
+			vTaskDelay(pdMS_TO_TICKS(3000));  // 延时避免打印过快
+		}
+	}
+}
+
+/*------------------------ AT初始化任务 ------------------------*/
+void vTaskRun_AT_init(void* pvParameters)
+{
+	TickType_t start_tick = xTaskGetTickCount();
+	while (1)
+	{
+		if (xSemaphoreTake(semAT, pdMS_TO_TICKS(100)))
+		{
+			if (AT_Init())
+			{
+				// 初始化成功
+				xEventGroupSetBits(g_sys_event, EVT_AT_INITED);
+				xSemaphoreGive(semAT);
+				vTaskDelete(NULL);  // 任务结束
+			}
+		}
+
+		// 超时检查
+		if ((xTaskGetTickCount() - start_tick) * portTICK_PERIOD_MS >= TIME_EXCEPTION)
+		{
+			xEventGroupClearBits(g_sys_event, EVT_AT_INITED);  // 确保异常任务知道未成功
+			xEventGroupSetBits(g_sys_event, EVT_EXCEPTION);    // 用作异常通知
+			start_tick = xTaskGetTickCount();                  // 重置计时器，持续触发异常
+		}
+
+		vTaskDelay(pdMS_TO_TICKS(TIME_CHECK_AT));  // 重试间隔
+	}
+}
+

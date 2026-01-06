@@ -22,14 +22,14 @@ void TFT_LCD_Init(SPIConfig* spic)
 		g_TFT_LCD.spic.spi_initstruct.SPI_CPOL              = SPI_CPOL_Low;
 		g_TFT_LCD.spic.spi_initstruct.SPI_CPHA              = SPI_CPHA_1Edge;
 		g_TFT_LCD.spic.spi_initstruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
-		spic                                                = &g_TFT_LCD.spic;
+
+		spic = &g_TFT_LCD.spic; // Important
 	}
 	else
 		g_TFT_LCD.spic = *spic;
 
-	if( BSP_GPIO_EnableClock(g_TFT_LCD.spic.port))
+	if (BSP_GPIO_EnableClock(g_TFT_LCD.spic.port))
 		printf("TFT_LCD_Init: gpio enable clock failed, port: %d\r\n", g_TFT_LCD.spic.port);
-
 
 	GPIO_InitTypeDef GPIO_InitStruct;
 	GPIO_StructInit(&GPIO_InitStruct);

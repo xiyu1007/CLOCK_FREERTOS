@@ -27,14 +27,14 @@ static uint32_t tim4_get_clk(void)
 		return pclk1 * 2;  // APB1 prescaler != 1
 }
 
-// void TIM4_IRQHandler(void)
-// {
-// 	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET)
-// 	{
-// 		TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
-// 		g_ms_tick++;  // 每 1 ms 增加一次
-// 	}
-// }
+void TIM4_IRQHandler(void)
+{
+	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET)
+	{
+		TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
+		g_ms_tick++;  // 每 1 ms 增加一次
+	}
+}
 
 /*---------------------------------------
  * u_timer 初始化：1 ms 中断一次
@@ -57,7 +57,7 @@ __attribute__((constructor)) static void u_timer_init(void)
 	// 5. 配置 NVIC
 	NVIC_InitTypeDef nvic;
 	nvic.NVIC_IRQChannel                   = TIM4_IRQn;
-	nvic.NVIC_IRQChannelPreemptionPriority = 5;
+	nvic.NVIC_IRQChannelPreemptionPriority = 4;
 	nvic.NVIC_IRQChannelSubPriority        = 0;
 	nvic.NVIC_IRQChannelCmd                = ENABLE;
 	NVIC_Init(&nvic);
