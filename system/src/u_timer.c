@@ -1,6 +1,6 @@
 #include "u_timer.h"
 
-volatile uint32_t g_ms_tick = 0;  // 毫秒计数
+// volatile uint32_t g_ms_tick = 0;  // 毫秒计数
 
 
 /*---------------------------------------
@@ -27,14 +27,28 @@ static uint32_t tim4_get_clk(void)
 		return pclk1 * 2;  // APB1 prescaler != 1
 }
 
-void TIM4_IRQHandler(void)
+// void TIM4_IRQHandler(void)
+// {
+// 	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET)
+// 	{
+// 		TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
+// 		g_ms_tick++;  // 每 1 ms 增加一次
+// 	}
+// }
+
+/* ------------------------- 微秒延时 ------------------------- */
+inline void u_delay_us(uint32_t us)
 {
-	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET)
-	{
-		TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
-		g_ms_tick++;  // 每 1 ms 增加一次
-	}
+    while (us)
+    {
+        uint32_t t = (us > 60000) ? 60000 : us;
+        uint32_t start = TIM4->CNT;
+        while ((uint16_t)(TIM4->CNT - start) < t)
+            ;
+        us -= t;
+    }
 }
+
 
 /*---------------------------------------
  * u_timer 初始化：1 ms 中断一次
@@ -47,20 +61,21 @@ __attribute__((constructor)) static void u_timer_init(void)
 
 	TIM_TimeBaseInitTypeDef tim4;
 	TIM_TimeBaseStructInit(&tim4);
-	tim4.TIM_Prescaler     = (timclk / 1000000UL) - 1;  // 1 MHz
+	tim4.TIM_Prescaler     = (timclk / 1000000UL) - 1;  // 84分频 => 1 MHz
 	tim4.TIM_CounterMode   = TIM_CounterMode_Up;
-	tim4.TIM_Period        = 1000 - 1;
+	tim4.TIM_Period        = 0xFFFF; // 最大16位计数
 	tim4.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseInit(TIM4, &tim4);
 
-	TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
-	// 5. 配置 NVIC
-	NVIC_InitTypeDef nvic;
-	nvic.NVIC_IRQChannel                   = TIM4_IRQn;
-	nvic.NVIC_IRQChannelPreemptionPriority = 4;
-	nvic.NVIC_IRQChannelSubPriority        = 0;
-	nvic.NVIC_IRQChannelCmd                = ENABLE;
-	NVIC_Init(&nvic);
+	// 不开中断不影响计数，只是计数到0xFFFF后会重新从0开始计数，不要中断影响任务运行
+	// TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
+	// // 5. 配置 NVIC
+	// NVIC_InitTypeDef nvic;
+	// nvic.NVIC_IRQChannel                   = TIM4_IRQn;
+	// nvic.NVIC_IRQChannelPreemptionPriority = 4;
+	// nvic.NVIC_IRQChannelSubPriority        = 0;
+	// nvic.NVIC_IRQChannelCmd                = ENABLE;
+	// NVIC_Init(&nvic);
 	// 开始计数
 	TIM_Cmd(TIM4, ENABLE);
 }
