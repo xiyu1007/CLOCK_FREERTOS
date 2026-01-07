@@ -17,7 +17,7 @@
 #define TIME_EXCEPTION 30000
 #define TIME_IDLE      1000
 #define TIME_DHT11     2000   // 1.5√Î
-#define TIME_WIFI      2000   // 5√Î
+#define TIME_WIFI      2000   // 2√Î
 #define TIME_HTTP      30000  // 30√Î
 #define TIME_GET_TIME  10000  // 1∑÷÷”
 

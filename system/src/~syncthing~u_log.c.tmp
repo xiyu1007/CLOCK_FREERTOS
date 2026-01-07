@@ -117,7 +117,7 @@ static void log_process(char* line)
 
 	char ssid_buf[128]     = { 0 };
 	char password_buf[128] = { 0 };
-	
+	log("%s", line);
 	if (sscanf(line, "WIFI: \"%127[^\"]\" \"%127[^\"]\"", ssid_buf, password_buf) != 2)
 	{
 

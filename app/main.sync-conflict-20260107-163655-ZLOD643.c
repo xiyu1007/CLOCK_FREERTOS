@@ -52,18 +52,19 @@ void sys_init(void *pvParameters)
 	                                            portMAX_DELAY);
 
 	// 创建任务
-    xTaskCreate(vTaskRun_Time_tick, "TimeTick", 512, NULL, BASE_PRIORITY + 7, NULL);
-    xTaskCreate(vTaskRun_Exception, "Exception", 512, NULL, BASE_PRIORITY + 7, NULL);
+    xTaskCreate(vTaskRun_Time_tick, "TimeTick", 512, NULL, BASE_PRIORITY + 8, NULL);
+    xTaskCreate(vTaskRun_Exception, "Exception", 512, NULL, BASE_PRIORITY + 8, NULL);
 
 	if (!(xEventGroupGetBits(g_sys_event) & EVT_AT_INITED))
-		xTaskCreate(vTaskRun_AT_init, "AT_Init", 512, NULL, BASE_PRIORITY + 6, NULL);
+		xTaskCreate(vTaskRun_AT_init, "AT_Init", 512, NULL, BASE_PRIORITY + 7, NULL);
 
-    xTaskCreate(vTaskRun_UI, "UI", 512, NULL, BASE_PRIORITY + 5, NULL);
+    xTaskCreate(vTaskRun_UI, "UI", 512, NULL, BASE_PRIORITY + 6, NULL);
 
-    xTaskCreate(vTaskRun_LogRx, "LogRx", 512, NULL, BASE_PRIORITY + 4, &xLogTaskHandle);
+    xTaskCreate(vTaskRun_LogRx, "LogRx", 512, NULL, BASE_PRIORITY + 5, &xLogTaskHandle);
 
-    xTaskCreate(vTaskRun_WIFI, "WIFI", 512, NULL, BASE_PRIORITY + 3, NULL);
-   xTaskCreate(vTaskRun_DHT11, "DHT11", 512, NULL, BASE_PRIORITY + 3, NULL);
+   	xTaskCreate(vTaskRun_DHT11, "DHT11", 512, NULL, BASE_PRIORITY + 4, NULL);
+
+    xTaskCreate(vTaskRun_WIFI, "WIFI", 512, NULL, BASE_PRIORITY + 4, NULL);
 
     xTaskCreate(vTaskRun_AT_Get_Time, "AT_Time", 512, NULL, BASE_PRIORITY + 2, NULL);
     xTaskCreate(vTaskRun_AT_HTTP, "AT_HTTP", 512, NULL, BASE_PRIORITY + 2, NULL);
@@ -138,16 +139,16 @@ void vTaskRun_WIFI(void* pvParameters)
 				xEventGroupClearBits(g_sys_event, EVT_WIFI_NEED_CONNECT);
 				xEventGroupSetBits(g_sys_event, EVT_WIFI_STATUS);
 				is_changed_status = false;
+				xSemaphoreGive(semAT);
 			}else{
 				if(!is_changed_status){
 					xEventGroupSetBits(g_sys_event, EVT_WIFI_STATUS); //如果被唤醒表明断开
 					is_changed_status = true;
 				}
-				log("WIFI disconnect, SSID: %s, PASSWORD: %s", ssid, password);
-				vTaskDelay(pdMS_TO_TICKS(TIME_WIFI));  // 休眠一会再试
+                log("WIFI connecting, SSID: %s, PASSWORD: %s", ssid, password);
 			}
-			xSemaphoreGive(semAT);
 		}
+		vTaskDelay(pdMS_TO_TICKS(TIME_WIFI));
 	}
 }
 

@@ -19,7 +19,6 @@
 
 #define LOG_BUF_SIZE      128
 
-extern char            log_buf[LOG_BUF_SIZE];
 extern weather_info_t  g_weather_info;
 
 

@@ -193,7 +193,7 @@ static void AT_Recv(uint32_t timeout)
 	uint32_t tick = NOW();
 	char*    p    = g_at_buf;
 
-	memset(g_at_buf, 0, sizeof(g_at_buf));
+//	memset(g_at_buf, 0, sizeof(g_at_buf));
 
 	while (!IS_TIMEOUT(tick, timeout))
 	{
@@ -221,6 +221,7 @@ static void AT_Recv(uint32_t timeout)
 			tick = NOW();
 		}
 	}
+    *p = '\0';
 }
 
 /* 统一：发送 + 接收 + 解析 */

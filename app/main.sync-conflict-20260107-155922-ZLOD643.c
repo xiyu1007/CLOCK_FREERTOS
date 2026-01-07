@@ -62,7 +62,7 @@ void sys_init(void *pvParameters)
 
     xTaskCreate(vTaskRun_LogRx, "LogRx", 512, NULL, BASE_PRIORITY + 4, &xLogTaskHandle);
 
-    xTaskCreate(vTaskRun_WIFI, "WIFI", 512, NULL, BASE_PRIORITY + 3, NULL);
+    xTaskCreate(vTaskRun_WIFI, "WIFI", 512, NULL, BASE_PRIORITY + 5, NULL);
    xTaskCreate(vTaskRun_DHT11, "DHT11", 512, NULL, BASE_PRIORITY + 3, NULL);
 
     xTaskCreate(vTaskRun_AT_Get_Time, "AT_Time", 512, NULL, BASE_PRIORITY + 2, NULL);
@@ -120,7 +120,7 @@ void vTaskRun_WIFI(void* pvParameters)
 	(void)pvParameters;
 
 	const EventBits_t wifi_wait_bits = EVT_WIFI_NEED_CONNECT;
-	static bool is_changed_status = false;
+
 	while (1)
 	{
 		// 等待 WiFi 相关事件触发（连接成功或信息变化）
@@ -129,22 +129,14 @@ void vTaskRun_WIFI(void* pvParameters)
 		                                       pdFALSE,  // 等待任意一个位
 		                                       portMAX_DELAY);
 
-		// xEventGroupClearBits(g_sys_event, EVT_WIFI_STATUS);
+		xEventGroupClearBits(g_sys_event, EVT_WIFI_STATUS);
 		if (xSemaphoreTake(semAT, TIME_SEM_TAKE))
 		{
 			// 获取 WiFi 状态
-			if (AT_WIFI_Connect(ssid, password, NULL) == AT_WIFI_CONNECTED)
+			if (AT_WIFI_Info(ssid) == AT_WIFI_CONNECTED)
 			{
 				xEventGroupClearBits(g_sys_event, EVT_WIFI_NEED_CONNECT);
 				xEventGroupSetBits(g_sys_event, EVT_WIFI_STATUS);
-				is_changed_status = false;
-			}else{
-				if(!is_changed_status){
-					xEventGroupSetBits(g_sys_event, EVT_WIFI_STATUS); //如果被唤醒表明断开
-					is_changed_status = true;
-				}
-				log("WIFI disconnect, SSID: %s, PASSWORD: %s", ssid, password);
-				vTaskDelay(pdMS_TO_TICKS(TIME_WIFI));  // 休眠一会再试
 			}
 			xSemaphoreGive(semAT);
 		}
@@ -257,44 +249,54 @@ void vTaskRun_Time_tick(void* pvParameters)
 void vTaskRun_UI(void* pvParameters)
 {
 	const EventBits_t ui_bits = EVT_COLON_TOGGLE | EVT_COLON_TOGGLE2 | EVT_TIME_UPDATED | EVT_DHT11_UPDATED |
-	                            EVT_HTTP_REQUEST | EVT_WIFI_STATUS;
-
+	                            EVT_HTTP_REQUEST  | EVT_WIFI_STATUS;
+// | EVT_WIFI_NEED_CONNECT
 	while (1)
 	{
-		EventBits_t bits = xEventGroupWaitBits(g_sys_event, ui_bits, pdTRUE, pdFALSE, portMAX_DELAY);
+		EventBits_t bits = xEventGroupWaitBits(g_sys_event, ui_bits, pdFALSE, pdFALSE, portMAX_DELAY);
 
 		if (xSemaphoreTake(semST7789, portMAX_DELAY))
 		{
 			if (bits & EVT_COLON_TOGGLE2)
 			{
 				u_update_colon(1);
+				xEventGroupClearBits(g_sys_event, EVT_COLON_TOGGLE2);
 			}
 
 			if (bits & EVT_COLON_TOGGLE)
 			{
 				u_update_colon(0);
+				xEventGroupClearBits(g_sys_event, EVT_COLON_TOGGLE);
 			}
 
 			if (bits & EVT_TIME_UPDATED)
 			{
 				u_update_time(&g_weather_info.time);
+				xEventGroupClearBits(g_sys_event, EVT_TIME_UPDATED);
 			}
 
 			if (bits & EVT_DATE_UPDATED)
 			{
 				u_update_date(&g_weather_info.time);
+				xEventGroupClearBits(g_sys_event, EVT_DATE_UPDATED);
 			}
 
 			if (bits & EVT_DHT11_UPDATED)
 			{
 				u_update_indoor_environment(g_weather_info.tmp_indoor, g_weather_info.humidity);
+				xEventGroupClearBits(g_sys_event, EVT_DHT11_UPDATED);
 			}
 
 			/* 
-			EVT_WIFI_STATUS 由 vTaskRun_WIFI 任务设置，指示状态变化
+			EVT_WIFI_NEED_CONNECT 由 vTaskRun_AT_HTTP 或 vTaskRun_AT_Get_Time 任务设置，指示从WIFI需要连接
+			EVT_WIFI_NEED_CONNECT：0->1, 则刷新图标 
+
+			EVT_WIFI_STATUS 由 vTaskRun_WIFI 任务设置，指示从未连接到连接成功
+			EVT_WIFI_STATUS ：0->1, 则刷新图标 
 			*/
-			if (bits & (EVT_WIFI_STATUS))
+			if (bits & (EVT_WIFI_STATUS | EVT_WIFI_NEED_CONNECT))
 			{
+				xEventGroupClearBits(g_sys_event, EVT_WIFI_STATUS); // 仅清除 从未连接到连接成功
 				u_update_wifi_img();
 			}
 
@@ -304,6 +306,7 @@ void vTaskRun_UI(void* pvParameters)
 				u_update_outdoor_environment(g_weather_info.temp_outdoor);
 				u_update_tmp_img(&g_weather_info);
 				u_update_weather_img(&g_weather_info);
+				xEventGroupClearBits(g_sys_event, EVT_HTTP_REQUEST);
 			}
 
 			xSemaphoreGive(semST7789);
