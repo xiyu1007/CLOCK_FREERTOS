@@ -11,7 +11,7 @@
 #define IS_TIMEOUT(start, ms) ((ms) ? ((uint32_t)((NOW()) - (uint32_t)(start)) >= (uint32_t)(ms)) : 0)
 
 // u_delay_us(m) // 定义在 u_timer.c 中， void u_delay_us(uint32_t us)
-inline void u_delay_us(uint32_t us);
+void u_delay_us(uint32_t us);
 #define u_delay_ms(m) vTaskDelay( pdMS_TO_TICKS(m))
 #define u_delay_s(s) vTaskDelay( pdMS_TO_TICKS((s)* 1000))
 

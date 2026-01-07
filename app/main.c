@@ -109,6 +109,7 @@ void vTaskRun_DHT11(void* pvParameters)
 			// ¸üÐÂ×´Ì¬
 			g_weather_info.tmp_indoor = tmp;
 			g_weather_info.humidity   = humi;
+			log("DHT11: tmp = %.2f, humi = %.2f", tmp, humi);
 			xEventGroupSetBits(g_sys_event, EVT_DHT11_UPDATED);
 		}
 	}
