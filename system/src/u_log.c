@@ -30,7 +30,7 @@ void log_init(void)
 
 static void LOG_DMA_Init(void)
 {
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+	RCC_AHB1PeriphClockCmd(usartc.dma_rx_rcc, ENABLE);
 	// #define SERIAL_USART      USART2
     // DMA_DeInit(usartc.dma_rx_stream);
 	DMA_InitTypeDef dma_init;

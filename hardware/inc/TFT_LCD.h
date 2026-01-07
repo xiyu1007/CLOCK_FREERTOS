@@ -15,6 +15,9 @@
 #define TFT_LCD_SCK         GPIO_Pin_5
 #define TFT_LCD_MISO        GPIO_Pin_6
 #define TFT_LCD_MOSI        GPIO_Pin_7
+#define TFT_DMA_Channel     DMA_Channel_3;
+#define TFT_DMA_Stream      DMA2_Stream3;
+#define TFT_DMA_RCC         RCC_AHB1Periph_DMA2;
 
 typedef struct
 {

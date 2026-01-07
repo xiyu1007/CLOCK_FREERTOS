@@ -16,6 +16,8 @@
 #define SERIAL_IRQn           USART2_IRQn
 #define SERIAL_DMA_RX_STREAM  DMA1_Stream5
 #define SERIAL_DMA_RX_CHANNEL DMA_Channel_4
+#define SERIAL_DMA_RX_RCC     RCC_AHB1Periph_DMA1
+
 
 #define USART_LOG(fmt, ...)   printf("[USART] " fmt "\r\n", ##__VA_ARGS__)
 
@@ -29,6 +31,7 @@ typedef struct
 	IRQn_Type           IRQn;
 	DMA_Stream_TypeDef* dma_rx_stream;
 	uint32_t            dma_rx_channel;
+	uint32_t            dma_rx_rcc;
 } USARTConfig;
 
 void u_usart_init(USARTConfig* usartc);

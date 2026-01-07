@@ -78,9 +78,9 @@ void ST7789_Init(void)
 
 static void ST7789_DMA_Init(void)
 {
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+    RCC_AHB1PeriphClockCmd(SCREEN.spic.DMA_RCC, ENABLE);
 
-    dma.DMA_Channel            = DMA_Channel_3;
+    dma.DMA_Channel            = SCREEN.spic.DMA_Channel;
     dma.DMA_DIR                = DMA_DIR_MemoryToPeripheral;
     dma.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
     dma.DMA_MemoryInc          = DMA_MemoryInc_Enable;
@@ -90,7 +90,7 @@ static void ST7789_DMA_Init(void)
     dma.DMA_Priority           = DMA_Priority_High;
     dma.DMA_PeripheralBaseAddr = (uint32_t)&SCREEN.spic.spix->DR;
 
-    DMA_Init(DMA2_Stream3, &dma);
+    DMA_Init(SCREEN.spic.DMA_Stream, &dma);
     SPI_DMACmd(SCREEN.spic.spix, SPI_I2S_DMAReq_Tx, ENABLE);
 }
 

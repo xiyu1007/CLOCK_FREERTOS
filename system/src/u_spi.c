@@ -8,7 +8,11 @@ void spi_default_config(SPIConfig* spic)
 	spic->sck  = GPIO_Pin_5;
 	spic->miso = GPIO_Pin_6;
 	spic->mosi = GPIO_Pin_7;
+	spic->DMA_Channel = DMA_Channel_3;
+	spic->DMA_Stream = DMA2_Stream3;
+	spic->DMA_RCC = RCC_AHB1Periph_DMA2;
 
+	SPI_StructInit(&spic->spi_initstruct);
 	(spic->spi_initstruct).SPI_Direction         = SPI_Direction_2Lines_FullDuplex;
 	(spic->spi_initstruct).SPI_Mode              = SPI_Mode_Master;
 	(spic->spi_initstruct).SPI_DataSize          = SPI_DataSize_8b;

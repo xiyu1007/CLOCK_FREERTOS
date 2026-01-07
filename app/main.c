@@ -84,7 +84,6 @@ int main(void)
 	xTaskCreate(sys_init, "sys_init", 1024, NULL, BASE_PRIORITY, NULL);
 	vTaskStartScheduler();
 
-	
 	while (1)
 	{
 	}

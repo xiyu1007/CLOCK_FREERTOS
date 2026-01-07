@@ -5,6 +5,8 @@
 #include "stm32f4xx.h"
 #include "u_bsp_rcc.h"
 
+
+
 typedef struct
 {
 	SPI_TypeDef*    spix;
@@ -13,6 +15,9 @@ typedef struct
 	uint16_t        mosi;
 	uint16_t        cs;
 	uint16_t        miso; /* ¿ÉÑ¡ */
+	uint32_t 		DMA_Channel;
+	uint32_t 		DMA_Stream;
+	uint32_t  		DMA_RCC;
 	SPI_InitTypeDef spi_initstruct;
 } SPIConfig;
 
