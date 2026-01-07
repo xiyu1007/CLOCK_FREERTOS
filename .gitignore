@@ -1,6 +1,7 @@
 # 编译生成的对象文件
 !*.uvprojx
 
+*.sync-conflict-*
 资料/
 *.vscode
 *.o
