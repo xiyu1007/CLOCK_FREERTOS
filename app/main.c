@@ -16,7 +16,6 @@ weather_info_t  g_weather_info = {
 	.humidity = 0.0,
 	.city = "³É¶¼",
 	.tmp_indoor = 0.0,
-	.humidity = 0.0,
 	.weather = 0,
 	.time = {
 		.week = 3,
