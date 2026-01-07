@@ -9,6 +9,7 @@ void usart_default_config(USARTConfig* usartc)
 	usartc->rx = SERIAL_USART_RX;
 	usartc->dma_rx_stream = SERIAL_DMA_RX_STREAM;
 	usartc->dma_rx_channel = SERIAL_DMA_RX_CHANNEL;
+    usartc->dma_rx_rcc = SERIAL_DMA_RX_RCC;
 	usartc->IRQn = SERIAL_IRQn;
 
 	USART_StructInit(&usartc->usart_initstruct);

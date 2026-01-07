@@ -8,18 +8,24 @@
   
 ## 硬件购买链接（仅供参考）
 - 【淘宝】7 天无理由退货 https://e.tb.cn/h.7RU1kElLxTqdZ8K?tk=Ab2rU1jKBFI CZ356 「STM32F407VET6 开发板 Cortex-M4 STM32 小型系统板 ARM 学习核心板」
-- 【淘宝】假一赔四 https://e.tb.cn/h.7itv9UN40JIytxq?tk=hW2ZU1jKBrZ CZ356 「DHT11温湿度传感器单总线模块数字开关电子积木 DHT11传感器」
+- 【淘宝】假一赔四 https://e.tb.cn/h.7itv9UN40JIytxq?tk=hW2ZU1jKBrZ CZ356 「DHT11 温湿度传感器单总线模块数字开关电子积木 DHT11 传感器」
 - 【淘宝】7 天无理由退货 https://e.tb.cn/h.7RMLOCeIlG7B3Tv?tk=ITk5U1jrfMG HU591 「ESP32-C3 开发板_简约/经典版 Wi-Fi 蓝牙编程学习控制器核心板模块」
 - TFT-LCD 拼多多 https://mobile.yangkeduo.com/goods1.html?ps=jK0xIbUlGZ
+
+## 串口发送 WIFI 连接命令
+注意发送编码务必选择 `utf-8`，否则不要带中文，格式如下
+```cpp
+WIFI: "4228密码1-9" "12345678"
+```
 
 ## 引脚连接定义位置
 
 | 模块      | 修改的文件                     | 主要配置项                             | 注意事项           |
 | ------- | ------------------------- | --------------------------------- | -------------- |
 | TFT-LCD | TFT_LCD.h                 | TFT_LCD_SPIx, TFT_LCD_PORT, 引脚宏定义 | 确保引脚支持复用功能     |
-| DMA传输   | TFT_LCD.h + ST7789_Init() | TFT_DMA_Stream/Channel/RCC        | 不同SPI对应不同DMA   |
-| 日志串口    | u_usart.h                 | SERIAL_USART* 系列宏定义               | 与AT串口使用不同USART |
-| AT串口    | AT相关头文件                   | AT_USART* 系列宏定义                   | 不使用中断/DMA      |
+| DMA 传输   | TFT_LCD.h + ST7789_Init() | TFT_DMA_Stream/Channel/RCC        | 不同 SPI 对应不同 DMA   |
+| 日志串口    | u_usart.h                 | SERIAL_USART* 系列宏定义               | 与 AT 串口使用不同 USART |
+| AT 串口    | AT 相关头文件                   | AT_USART* 系列宏定义                   | 不使用中断/DMA      |
 | DHT11   | DHT11.h                   | DHT11_PORT, DHT11_PIN             | 单线时序敏感         |
 
 

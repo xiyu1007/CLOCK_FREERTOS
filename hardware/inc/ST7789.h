@@ -4,7 +4,6 @@
 #include "TFT_LCD.h"
 #include "font.h"
 #include "image.h"
-#include "u_delay.h"
 #include "u_log.h"
 #include <stdbool.h>
 #include <stddef.h>

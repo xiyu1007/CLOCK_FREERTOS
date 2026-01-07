@@ -14,7 +14,7 @@ TaskHandle_t xLogTaskHandle = NULL;
 weather_info_t  g_weather_info = {
 	.temp_outdoor = 0.0,
 	.humidity = 0.0,
-	.city = "±Ï½Ú",
+	.city = "³É¶¼",
 	.tmp_indoor = 0.0,
 	.humidity = 0.0,
 	.weather = 0,
@@ -63,7 +63,7 @@ void sys_init(void *pvParameters)
     xTaskCreate(vTaskRun_LogRx, "LogRx", 512, NULL, BASE_PRIORITY + 4, &xLogTaskHandle);
 
     xTaskCreate(vTaskRun_WIFI, "WIFI", 512, NULL, BASE_PRIORITY + 3, NULL);
-   xTaskCreate(vTaskRun_DHT11, "DHT11", 512, NULL, BASE_PRIORITY + 3, NULL);
+   	xTaskCreate(vTaskRun_DHT11, "DHT11", 512, NULL, BASE_PRIORITY + 3, NULL);
 
     xTaskCreate(vTaskRun_AT_Get_Time, "AT_Time", 512, NULL, BASE_PRIORITY + 2, NULL);
     xTaskCreate(vTaskRun_AT_HTTP, "AT_HTTP", 512, NULL, BASE_PRIORITY + 2, NULL);

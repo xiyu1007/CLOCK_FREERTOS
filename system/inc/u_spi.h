@@ -16,7 +16,7 @@ typedef struct
 	uint16_t        cs;
 	uint16_t        miso; /* ¿ÉÑ¡ */
 	uint32_t 		DMA_Channel;
-	uint32_t 		DMA_Stream;
+	DMA_Stream_TypeDef * 		DMA_Stream;
 	uint32_t  		DMA_RCC;
 	SPI_InitTypeDef spi_initstruct;
 } SPIConfig;

@@ -84,6 +84,7 @@ void vTaskRun_LogRx(void* pvParameters)
 	{
 		// 阻塞等待中断通知
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+
         DMA_Cmd(usartc.dma_rx_stream, DISABLE);
         while (usartc.dma_rx_stream->CR & DMA_SxCR_EN);
 

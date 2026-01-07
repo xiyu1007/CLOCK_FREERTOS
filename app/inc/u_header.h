@@ -11,8 +11,6 @@
 #include "u_initpage.h"
 #include "u_homepage.h"
 
-#include "u_delay.h"
-#include "u_key.h"
 #include "u_spi.h"
 
 #include "DHT11.h"

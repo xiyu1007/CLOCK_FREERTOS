@@ -3,7 +3,6 @@
 
 #include <string.h>
 #include <stdio.h>
-#include "u_delay.h"
 #include "u_timer.h"
 #include "u_bsp_rcc.h"
 #include "u_log.h"

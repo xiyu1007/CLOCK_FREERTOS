@@ -8,7 +8,6 @@
 #include "TFT_LCD.h"
 #include "u_log.h"
 #include "stm32f4xx.h"
-#include "u_delay.h"
 
 #include "font.h"
 #include "image.h"

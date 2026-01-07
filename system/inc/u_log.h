@@ -17,7 +17,7 @@
 // #define log(fmt, ...)     LOG("[LOG] FILE: %s LINE: %d\r\n" fmt "\r\n", __FILE__, __LINE__, ##__VA_ARGS__)
 
 
-#define LOG_BUF_SIZE      128
+#define LOG_BUF_SIZE      512
 
 extern weather_info_t  g_weather_info;
 

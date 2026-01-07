@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER,HSE_VALUE=8000000</Define>
               <Undefine></Undefine>
-              <IncludePath>..\firmware\cmsis\core;..\firmware\cmsis\device;..\firmware\driver\inc;..\firmware\cmsis\config;..\system\inc;..\hardware\inc;..\app;..\app\inc;..\app\font;..\app\image;..\third_lib\freertos\include;..\third_lib\freertos\portable</IncludePath>
+              <IncludePath>..\firmware\cmsis\config;..\firmware\cmsis\core;..\firmware\cmsis\device;..\firmware\driver\inc;..\firmware\driver\src;..\hardware\inc;..\hardware\src;..\system\inc;..\system\src;..\third_lib\freertos\include;..\third_lib\freertos;..\third_lib\freertos\portable;..\app_lib\image;..\app_lib\font;..\app\inc;..\app\src</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -673,16 +673,6 @@
           <GroupName>system/src</GroupName>
           <Files>
             <File>
-              <FileName>u_key.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\system\src\u_key.c</FilePath>
-            </File>
-            <File>
-              <FileName>u_delay.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\system\src\u_delay.c</FilePath>
-            </File>
-            <File>
               <FileName>u_usart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\system\src\u_usart.c</FilePath>
@@ -696,11 +686,6 @@
               <FileName>u_timer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\system\src\u_timer.c</FilePath>
-            </File>
-            <File>
-              <FileName>u_bsp_rcc_f1.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\system\src\u_bsp_rcc_f1.c</FilePath>
             </File>
             <File>
               <FileName>u_bsp_rcc_f4.c</FileName>
@@ -723,21 +708,6 @@
               <FilePath>..\system\inc\u_timer.h</FilePath>
             </File>
             <File>
-              <FileName>log.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\system\inc\log.h</FilePath>
-            </File>
-            <File>
-              <FileName>u_delay.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\system\inc\u_delay.h</FilePath>
-            </File>
-            <File>
-              <FileName>u_key.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\system\inc\u_key.h</FilePath>
-            </File>
-            <File>
               <FileName>u_usart.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\system\inc\u_usart.h</FilePath>
@@ -746,6 +716,16 @@
               <FileName>u_spi.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\system\inc\u_spi.h</FilePath>
+            </File>
+            <File>
+              <FileName>u_log.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\system\inc\u_log.h</FilePath>
+            </File>
+            <File>
+              <FileName>u_bsp_rcc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\system\inc\u_bsp_rcc.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -803,11 +783,6 @@
           <GroupName>app</GroupName>
           <Files>
             <File>
-              <FileName>u_header.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\system\inc\u_header.h</FilePath>
-            </File>
-            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\app\main.c</FilePath>
@@ -817,6 +792,11 @@
               <FileType>5</FileType>
               <FilePath>..\app\main.h</FilePath>
             </File>
+            <File>
+              <FileName>u_header.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\app\u_header.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -825,82 +805,87 @@
             <File>
               <FileName>image.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\app\image\image.c</FilePath>
+              <FilePath>..\app_lib\image\image.c</FilePath>
             </File>
             <File>
               <FileName>image_home.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\app\image\image_home.c</FilePath>
+              <FilePath>..\app_lib\image\image_home.c</FilePath>
             </File>
             <File>
               <FileName>image_init.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\app\image\image_init.c</FilePath>
-            </File>
-            <File>
-              <FileName>we_cloudy.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\app\image\we_cloudy.c</FilePath>
-            </File>
-            <File>
-              <FileName>we_heavy_rain.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\app\image\we_heavy_rain.c</FilePath>
-            </File>
-            <File>
-              <FileName>we_late_night.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\app\image\we_late_night.c</FilePath>
-            </File>
-            <File>
-              <FileName>we_night.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\app\image\we_night.c</FilePath>
-            </File>
-            <File>
-              <FileName>we_rainy.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\app\image\we_rainy.c</FilePath>
-            </File>
-            <File>
-              <FileName>we_snowy.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\app\image\we_snowy.c</FilePath>
-            </File>
-            <File>
-              <FileName>we_sunny.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\app\image\we_sunny.c</FilePath>
-            </File>
-            <File>
-              <FileName>we_unknown.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\app\image\we_unknown.c</FilePath>
-            </File>
-            <File>
-              <FileName>wifi_no.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\app\image\wifi_no.c</FilePath>
-            </File>
-            <File>
-              <FileName>wifi_yes.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\app\image\wifi_yes.c</FilePath>
+              <FilePath>..\app_lib\image\image_init.c</FilePath>
             </File>
             <File>
               <FileName>tmp_cold.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\app\image\tmp_cold.c</FilePath>
+              <FilePath>..\app_lib\image\tmp_cold.c</FilePath>
             </File>
             <File>
               <FileName>tmp_hot.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\app\image\tmp_hot.c</FilePath>
+              <FilePath>..\app_lib\image\tmp_hot.c</FilePath>
             </File>
             <File>
               <FileName>tmp_warm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\app\image\tmp_warm.c</FilePath>
+              <FilePath>..\app_lib\image\tmp_warm.c</FilePath>
+            </File>
+            <File>
+              <FileName>we_cloudy.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app_lib\image\we_cloudy.c</FilePath>
+            </File>
+            <File>
+              <FileName>we_heavy_rain.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app_lib\image\we_heavy_rain.c</FilePath>
+            </File>
+            <File>
+              <FileName>we_late_night.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app_lib\image\we_late_night.c</FilePath>
+            </File>
+            <File>
+              <FileName>we_night.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app_lib\image\we_night.c</FilePath>
+            </File>
+            <File>
+              <FileName>we_rainy.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app_lib\image\we_rainy.c</FilePath>
+            </File>
+            <File>
+              <FileName>we_snowy.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app_lib\image\we_snowy.c</FilePath>
+            </File>
+            <File>
+              <FileName>we_sunny.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app_lib\image\we_sunny.c</FilePath>
+            </File>
+            <File>
+              <FileName>we_unknown.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app_lib\image\we_unknown.c</FilePath>
+            </File>
+            <File>
+              <FileName>wifi_no.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app_lib\image\wifi_no.c</FilePath>
+            </File>
+            <File>
+              <FileName>wifi_yes.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app_lib\image\wifi_yes.c</FilePath>
+            </File>
+            <File>
+              <FileName>image.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\app_lib\image\image.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -938,34 +923,39 @@
           <GroupName>app/font</GroupName>
           <Files>
             <File>
+              <FileName>font.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\app_lib\font\font.h</FilePath>
+            </File>
+            <File>
               <FileName>font16.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\app\font\font16.c</FilePath>
+              <FilePath>..\app_lib\font\font16.c</FilePath>
             </File>
             <File>
               <FileName>font22.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\app\font\font22.c</FilePath>
+              <FilePath>..\app_lib\font\font22.c</FilePath>
             </File>
             <File>
               <FileName>font24.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\app\font\font24.c</FilePath>
+              <FilePath>..\app_lib\font\font24.c</FilePath>
             </File>
             <File>
               <FileName>font32.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\app\font\font32.c</FilePath>
+              <FilePath>..\app_lib\font\font32.c</FilePath>
             </File>
             <File>
               <FileName>font44.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\app\font\font44.c</FilePath>
+              <FilePath>..\app_lib\font\font44.c</FilePath>
             </File>
             <File>
               <FileName>font48.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\app\font\font48.c</FilePath>
+              <FilePath>..\app_lib\font\font48.c</FilePath>
             </File>
           </Files>
         </Group>
