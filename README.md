@@ -30,6 +30,10 @@ WIFI: "4228密码1-9" "12345678"
 
 
 
+
+
+
+
 | 模块              | 外设 / 端口        | MCU 引脚                | 连接对象            | 连接类型            | 说明             | 修改位置                    |
 | --------------- | -------------- | --------------------- | --------------- | --------------- | -------------- | ----------------------- |
 | TFT-LCD（ST7789） | SPI1 / GPIOA   | PA5 (SPI1_SCK)        | TFT-LCD SCK     | 实体连线            | SPI 时钟         | TFT_LCD.h               |
@@ -45,6 +49,10 @@ WIFI: "4228密码1-9" "12345678"
 | AT 指令串口（WiFi）   | USART1 / GPIOA | PA9 (USART1_TX)       | ESP32 RX        | 实体连线            | MCU → ESP32    | AT_xxx.h                |
 |                 | USART1 / GPIOA | PA10 (USART1_RX)      | ESP32 TX        | 实体连线            | ESP32 → MCU    | AT_xxx.h                |
 | DHT11 传感器       | GPIOE          | PE2 (GPIO)            | DHT11 DATA      | 实体连线            | 单线通信（需上拉）      | DHT11.h                 |
+
+
+
+
 
 
 ```cpp
