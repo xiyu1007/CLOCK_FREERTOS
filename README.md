@@ -1,51 +1,51 @@
 # CLOCK_FREERTOS
 
-## Ó²¼þ
+## ç¡¬ä»¶
 - STM32F407VET6
 - ESP32-C3 (wifi)
-- DHT11 £¨ÎÂÊª¶È´«¸ÐÆ÷£¬µ¥Ïß IIC Í¨ÐÅ£©
-- TFT-LCD £¨2.4 ´æÏÔÊ¾ÆÁ£©
+- DHT11 ï¼ˆæ¸©æ¹¿åº¦ä¼ æ„Ÿå™¨ï¼Œå•çº¿ IIC é€šä¿¡ï¼‰
+- TFT-LCD ï¼ˆ2.4 å­˜æ˜¾ç¤ºå±ï¼‰
   
-## Ó²¼þ¹ºÂòÁ´½Ó£¨½ö¹©²Î¿¼£©
-- ¡¾ÌÔ±¦¡¿7 ÌìÎÞÀíÓÉÍË»õ https://e.tb.cn/h.7RU1kElLxTqdZ8K?tk=Ab2rU1jKBFI CZ356 ¡¸STM32F407VET6 ¿ª·¢°å Cortex-M4 STM32 Ð¡ÐÍÏµÍ³°å ARM Ñ§Ï°ºËÐÄ°å¡¹
-- ¡¾ÌÔ±¦¡¿¼ÙÒ»ÅâËÄ https://e.tb.cn/h.7itv9UN40JIytxq?tk=hW2ZU1jKBrZ CZ356 ¡¸DHT11 ÎÂÊª¶È´«¸ÐÆ÷µ¥×ÜÏßÄ£¿éÊý×Ö¿ª¹Øµç×Ó»ýÄ¾ DHT11 ´«¸ÐÆ÷¡¹
-- ¡¾ÌÔ±¦¡¿7 ÌìÎÞÀíÓÉÍË»õ https://e.tb.cn/h.7RMLOCeIlG7B3Tv?tk=ITk5U1jrfMG HU591 ¡¸ESP32-C3 ¿ª·¢°å_¼òÔ¼/¾­µä°æ Wi-Fi À¶ÑÀ±à³ÌÑ§Ï°¿ØÖÆÆ÷ºËÐÄ°åÄ£¿é¡¹
-- TFT-LCD Æ´¶à¶à https://mobile.yangkeduo.com/goods1.html?ps=jK0xIbUlGZ
+## ç¡¬ä»¶è´­ä¹°é“¾æŽ¥ï¼ˆä»…ä¾›å‚è€ƒï¼‰
+- ã€æ·˜å®ã€‘7 å¤©æ— ç†ç”±é€€è´§ https://e.tb.cn/h.7RU1kElLxTqdZ8K?tk=Ab2rU1jKBFI CZ356 ã€ŒSTM32F407VET6 å¼€å‘æ¿ Cortex-M4 STM32 å°åž‹ç³»ç»Ÿæ¿ ARM å­¦ä¹ æ ¸å¿ƒæ¿ã€
+- ã€æ·˜å®ã€‘å‡ä¸€èµ”å›› https://e.tb.cn/h.7itv9UN40JIytxq?tk=hW2ZU1jKBrZ CZ356 ã€ŒDHT11 æ¸©æ¹¿åº¦ä¼ æ„Ÿå™¨å•æ€»çº¿æ¨¡å—æ•°å­—å¼€å…³ç”µå­ç§¯æœ¨ DHT11 ä¼ æ„Ÿå™¨ã€
+- ã€æ·˜å®ã€‘7 å¤©æ— ç†ç”±é€€è´§ https://e.tb.cn/h.7RMLOCeIlG7B3Tv?tk=ITk5U1jrfMG HU591 ã€ŒESP32-C3 å¼€å‘æ¿_ç®€çº¦/ç»å…¸ç‰ˆ Wi-Fi è“ç‰™ç¼–ç¨‹å­¦ä¹ æŽ§åˆ¶å™¨æ ¸å¿ƒæ¿æ¨¡å—ã€
+- TFT-LCD æ‹¼å¤šå¤š https://mobile.yangkeduo.com/goods1.html?ps=jK0xIbUlGZ
 
-## ´®¿Ú·¢ËÍ WIFI Á¬½ÓÃüÁî
-×¢Òâ·¢ËÍ±àÂëÎñ±ØÑ¡Ôñ `utf-8`£¬·ñÔò²»Òª´øÖÐÎÄ£¬¸ñÊ½ÈçÏÂ
+## ä¸²å£å‘é€ WIFI è¿žæŽ¥å‘½ä»¤
+æ³¨æ„å‘é€ç¼–ç åŠ¡å¿…é€‰æ‹© `utf-8`ï¼Œå¦åˆ™ä¸è¦å¸¦ä¸­æ–‡ï¼Œæ ¼å¼å¦‚ä¸‹
 ```cpp
-WIFI: "4228ÃÜÂë1-9" "12345678"
+WIFI: "4228å¯†ç 1-9" "12345678"
 ```
 
-## Òý½ÅÁ¬½Ó¶¨ÒåÎ»ÖÃ
+## å¼•è„šè¿žæŽ¥å®šä¹‰ä½ç½®
 
-| Ä£¿é      | ÐÞ¸ÄµÄÎÄ¼þ                     | Ö÷ÒªÅäÖÃÏî                             | ×¢ÒâÊÂÏî           |
+| æ¨¡å—      | ä¿®æ”¹çš„æ–‡ä»¶                     | ä¸»è¦é…ç½®é¡¹                             | æ³¨æ„äº‹é¡¹           |
 | ------- | ------------------------- | --------------------------------- | -------------- |
-| TFT-LCD | TFT_LCD.h                 | TFT_LCD_SPIx, TFT_LCD_PORT, Òý½Åºê¶¨Òå | È·±£Òý½ÅÖ§³Ö¸´ÓÃ¹¦ÄÜ     |
-| DMA ´«Êä   | TFT_LCD.h + ST7789_Init() | TFT_DMA_Stream/Channel/RCC        | ²»Í¬ SPI ¶ÔÓ¦²»Í¬ DMA   |
-| ÈÕÖ¾´®¿Ú    | u_usart.h                 | SERIAL_USART* ÏµÁÐºê¶¨Òå               | Óë AT ´®¿ÚÊ¹ÓÃ²»Í¬ USART |
-| AT ´®¿Ú    | AT Ïà¹ØÍ·ÎÄ¼þ                   | AT_USART* ÏµÁÐºê¶¨Òå                   | ²»Ê¹ÓÃÖÐ¶Ï/DMA      |
-| DHT11   | DHT11.h                   | DHT11_PORT, DHT11_PIN             | µ¥ÏßÊ±ÐòÃô¸Ð         |
+| TFT-LCD | TFT_LCD.h                 | TFT_LCD_SPIx, TFT_LCD_PORT, å¼•è„šå®å®šä¹‰ | ç¡®ä¿å¼•è„šæ”¯æŒå¤ç”¨åŠŸèƒ½     |
+| DMA ä¼ è¾“   | TFT_LCD.h + ST7789_Init() | TFT_DMA_Stream/Channel/RCC        | ä¸åŒ SPI å¯¹åº”ä¸åŒ DMA   |
+| æ—¥å¿—ä¸²å£    | u_usart.h                 | SERIAL_USART* ç³»åˆ—å®å®šä¹‰               | ä¸Ž AT ä¸²å£ä½¿ç”¨ä¸åŒ USART |
+| AT ä¸²å£    | AT ç›¸å…³å¤´æ–‡ä»¶                   | AT_USART* ç³»åˆ—å®å®šä¹‰                   | ä¸ä½¿ç”¨ä¸­æ–­/DMA      |
+| DHT11   | DHT11.h                   | DHT11_PORT, DHT11_PIN             | å•çº¿æ—¶åºæ•æ„Ÿ         |
 
 
-## ¾ßÌåÁ¬½ÓÊ¾Òâ
+## å…·ä½“è¿žæŽ¥ç¤ºæ„
 
-| Ä£¿é              | ÍâÉè / ¶Ë¿Ú        | MCU Òý½Å                | Á¬½Ó¶ÔÏó            | Á¬½ÓÀàÐÍ            | ËµÃ÷             | ÐÞ¸ÄÎ»ÖÃ                    |
+| æ¨¡å—              | å¤–è®¾ / ç«¯å£        | MCU å¼•è„š                | è¿žæŽ¥å¯¹è±¡            | è¿žæŽ¥ç±»åž‹            | è¯´æ˜Ž             | ä¿®æ”¹ä½ç½®                    |
 | --------------- | -------------- | --------------------- | --------------- | --------------- | -------------- | ----------------------- |
-| TFT-LCD£¨ST7789£© | SPI1 / GPIOA   | PA5 (SPI1_SCK)        | TFT-LCD SCK     | ÊµÌåÁ¬Ïß            | SPI Ê±ÖÓ         | TFT_LCD.h               |
-|                 | SPI1 / GPIOA   | PA7 (SPI1_MOSI)       | TFT-LCD MOSI    | ÊµÌåÁ¬Ïß            | SPI Êý¾ÝÊä³ö       | TFT_LCD.h               |
-|                 | SPI1 / GPIOA   | PA6 (SPI1_MISO)       | TFT-LCD MISO    | ÊµÌåÁ¬Ïß£¨¿ÉÑ¡£©        | SPI Êý¾ÝÊäÈë£¨Í¨³£²»ÓÃ£© | TFT_LCD.h               |
-|                 | GPIOA          | PA4 (GPIO)            | TFT-LCD CS      | ÊµÌåÁ¬Ïß            | Æ¬Ñ¡ÐÅºÅ           | TFT_LCD.h               |
-|                 | GPIOA          | PA3 (GPIO)            | TFT-LCD DC / RS | ÊµÌåÁ¬Ïß            | Êý¾Ý/ÃüÁîÑ¡Ôñ        | TFT_LCD.h               |
-|                 | GPIOA          | PA2 (GPIO)            | TFT-LCD RST     | ÊµÌåÁ¬Ïß            | ÏÔÊ¾¸´Î»           | TFT_LCD.h               |
-| SPI1 DMA£¨·¢ËÍ£©    | DMA2           | DMA2 Stream3 Channel3 | SPI1 TX         | **Âß¼­Á¬½Ó£¨ÎÞÎïÀíÁ¬Ïß£©** | ÄÚ´æ ¡ú SPI Êý¾Ý¼Ä´æÆ÷ | TFT_LCD.h / ST7789_Init |
-| ÈÕÖ¾´®¿Ú            | USART2 / GPIOD | PD5 (USART2_TX)       | µ÷ÊÔÆ÷ RX          | ÊµÌåÁ¬Ïß            | ÈÕÖ¾Êä³ö           | u_usart.h               |
-|                 | USART2 / GPIOD | PD6 (USART2_RX)       | µ÷ÊÔÆ÷ TX          | ÊµÌåÁ¬Ïß            | ÃüÁîÊäÈë           | u_usart.h               |
-| ÈÕÖ¾´®¿Ú DMA        | DMA1           | DMA1 Stream5 Channel4 | USART2 RX       | **Âß¼­Á¬½Ó£¨ÎÞÎïÀíÁ¬Ïß£©** | ´®¿Ú½ÓÊÕ DMA       | u_usart.h               |
-| AT Ö¸Áî´®¿Ú£¨WiFi£©   | USART1 / GPIOA | PA9 (USART1_TX)       | ESP32 RX        | ÊµÌåÁ¬Ïß            | MCU ¡ú ESP32    | AT_xxx.h                |
-|                 | USART1 / GPIOA | PA10 (USART1_RX)      | ESP32 TX        | ÊµÌåÁ¬Ïß            | ESP32 ¡ú MCU    | AT_xxx.h                |
-| DHT11 ´«¸ÐÆ÷       | GPIOE          | PE2 (GPIO)            | DHT11 DATA      | ÊµÌåÁ¬Ïß            | µ¥ÏßÍ¨ÐÅ£¨ÐèÉÏÀ­£©      | DHT11.h                 |
+| TFT-LCDï¼ˆST7789ï¼‰ | SPI1 / GPIOA   | PA5 (SPI1_SCK)        | TFT-LCD SCK     | å®žä½“è¿žçº¿            | SPI æ—¶é’Ÿ         | TFT_LCD.h               |
+|                 | SPI1 / GPIOA   | PA7 (SPI1_MOSI)       | TFT-LCD MOSI    | å®žä½“è¿žçº¿            | SPI æ•°æ®è¾“å‡º       | TFT_LCD.h               |
+|                 | SPI1 / GPIOA   | PA6 (SPI1_MISO)       | TFT-LCD MISO    | å®žä½“è¿žçº¿ï¼ˆå¯é€‰ï¼‰        | SPI æ•°æ®è¾“å…¥ï¼ˆé€šå¸¸ä¸ç”¨ï¼‰ | TFT_LCD.h               |
+|                 | GPIOA          | PA4 (GPIO)            | TFT-LCD CS      | å®žä½“è¿žçº¿            | ç‰‡é€‰ä¿¡å·           | TFT_LCD.h               |
+|                 | GPIOA          | PA3 (GPIO)            | TFT-LCD DC / RS | å®žä½“è¿žçº¿            | æ•°æ®/å‘½ä»¤é€‰æ‹©        | TFT_LCD.h               |
+|                 | GPIOA          | PA2 (GPIO)            | TFT-LCD RST     | å®žä½“è¿žçº¿            | æ˜¾ç¤ºå¤ä½           | TFT_LCD.h               |
+| SPI1 DMAï¼ˆå‘é€ï¼‰    | DMA2           | DMA2 Stream3 Channel3 | SPI1 TX         | **é€»è¾‘è¿žæŽ¥ï¼ˆæ— ç‰©ç†è¿žçº¿ï¼‰** | å†…å­˜ â†’ SPI æ•°æ®å¯„å­˜å™¨ | TFT_LCD.h / ST7789_Init |
+| æ—¥å¿—ä¸²å£            | USART2 / GPIOD | PD5 (USART2_TX)       | è°ƒè¯•å™¨ RX          | å®žä½“è¿žçº¿            | æ—¥å¿—è¾“å‡º           | u_usart.h               |
+|                 | USART2 / GPIOD | PD6 (USART2_RX)       | è°ƒè¯•å™¨ TX          | å®žä½“è¿žçº¿            | å‘½ä»¤è¾“å…¥           | u_usart.h               |
+| æ—¥å¿—ä¸²å£ DMA        | DMA1           | DMA1 Stream5 Channel4 | USART2 RX       | **é€»è¾‘è¿žæŽ¥ï¼ˆæ— ç‰©ç†è¿žçº¿ï¼‰** | ä¸²å£æŽ¥æ”¶ DMA       | u_usart.h               |
+| AT æŒ‡ä»¤ä¸²å£ï¼ˆWiFiï¼‰   | USART1 / GPIOA | PA9 (USART1_TX)       | ESP32 RX        | å®žä½“è¿žçº¿            | MCU â†’ ESP32    | AT_xxx.h                |
+|                 | USART1 / GPIOA | PA10 (USART1_RX)      | ESP32 TX        | å®žä½“è¿žçº¿            | ESP32 â†’ MCU    | AT_xxx.h                |
+| DHT11 ä¼ æ„Ÿå™¨       | GPIOE          | PE2 (GPIO)            | DHT11 DATA      | å®žä½“è¿žçº¿            | å•çº¿é€šä¿¡ï¼ˆæ— éœ€ä¸Šæ‹‰ï¼‰    | DHT11.h                 |
 
 
 
@@ -53,84 +53,84 @@ WIFI: "4228ÃÜÂë1-9" "12345678"
 
 
 ```cpp
-©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´
-©¦                                STM32 Ö÷¿ØÐ¾Æ¬                                        ©¦
-©¦                                                                                     ©¦
-©À©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©È
-©¦      TFT-LCD£¨ST7789£©SPI1 + ¿ØÖÆÒý½Å            ©¦ ÐÞ¸ÄÎ»ÖÃ£ºTFT_LCD.h                ©¦
-©¦  ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´    ©¦ ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´      ©¦
-©¦  ©¦ GPIOA / SPI1                            ©¦    ©¦ ©¦ ? TFT_LCD_SPIx           ©¦      ©¦
-©¦  ©¦                                         ©¦    ©¦ ©¦ ? TFT_LCD_PORT           ©¦      ©¦
-©¦  ©¦ ? PA5  (SPI1_SCK)  ©¤©¤©¤©¤©´                ©¦    ©¦ ©¦ ? TFT_LCD_SCK/MOSI/MISO/CS©¦     ©¦
-©¦  ©¦                        ¨‹                ©¦    ©¦ ©¦ ? TFT_LCD_DC/RST         ©¦      ©¦
-©¦  ©¦ ? PA7  (SPI1_MOSI) ©¤©¤©¤©¤©´                ©¦    ©¦ ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼      ©¦
-©¦  ©¦                        ¨‹                ©¦    ©¦                                   ©¦
-©¦  ©¦ ? PA4  (GPIO_CS)  ©¤©¤©¤©¤©¤©´                ©¦    ©¦                                   ©¦
-©¦  ©¦                        ¨‹                ©¦    ©¦                                   ©¦
-©¦  ©¦ ? PA3  (GPIO_DC)  ©¤©¤©¤©¤©¤©´                ©¦    ©¦                                   ©¦
-©¦  ©¦                        ¨‹                ©¦    ©¦                                   ©¦
-©¦  ©¦ ? PA2  (GPIO_RST) ©¤©¤©¤©¤©¤©´                ©¦    ©¦                                   ©¦
-©¦  ©¦                        ¨‹                ©¦    ©¦                                   ©¦
-©¦  ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©Ð©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼    ©¦                                   ©¦
-©¦                          ©¦                      ©¦                                   ©¦
-©¦  ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤¨‹©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´                                    ©¦
-©¦  ©¦         TFT-LCD Ä£¿é £º GPIOA                ©¦                                    ©¦
-©¦  ©¦  ? SCK   ¡û PA5                              ©¦                                    ©¦
-©¦  ©¦  ? MOSI  ¡û PA7                              ©¦                                    ©¦
-©¦  ©¦  ? CS    ¡û PA4                              ©¦                                    ©¦
-©¦  ©¦  ? DC    ¡û PA3                              ©¦                                    ©¦
-©¦  ©¦  ? RST   ¡û PA2                              ©¦                                    ©¦
-©¦  ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼                                    ©¦
-©¦                                                                                     ©¦
-©À©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©È
-©¦ SPI1 DMA ·¢ËÍ£¨Âß¼­Á¬½Ó£©                 ©¦ ÐÞ¸ÄÎ»ÖÃ£ºTFT_LCD.h / ST7789_Init()       ©¦
-©¦  ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´ ©¦ ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´              ©¦
-©¦  ©¦ ? DMA2 Stream3 Channel3 ©¤©¤©¤©´       ©¦ ©¦ ©¦ ? TFT_DMA_Stream        ©¦               ©¦
-©¦  ©¦                            ¨‹       ©¦ ©¦ ©¦ ? TFT_DMA_Channel       ©¦               ©¦
-©¦  ©¦                          SPI1 TX   ©¦ ©¦ ©¦ ? TFT_DMA_RCC           ©¦               ©¦
-©¦  ©¦      £¨ÄÚ´æ ¡ú SPIÊý¾Ý¼Ä´æÆ÷£©        ©¦ ©¦ ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼              ©¦
-©¦  ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼ ©¦                                           ©¦
-©¦                                                                                     ©¦
-©À©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©È
-©¦  USART2 ÈÕÖ¾´®¿Ú£¨µ÷ÊÔ£©               ©¦ ÐÞ¸ÄÎ»ÖÃ£ºu_usart.h                          ©¦
-©¦  ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´  ©¦ ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´           ©¦
-©¦  ©¦ GPIOD / USART2                    ©¦  ©¦ ©¦ ? SERIAL_USART              ©¦           ©¦
-©¦  ©¦                                   ©¦  ©¦ ©¦ ? SERIAL_USART_PORT         ©¦           ©¦
-©¦  ©¦ ? PD5 (USART2_TX) ©¤©¤©¤©´            ©¦  ©¦ ©¦ ? SERIAL_USART_TX/RX        ©¦           ©¦
-©¦  ©¦                      ¨‹            ©¦  ©¦ ©¦ ? SERIAL_DMA_RX_STREAM      ©¦           ©¦
-©¦  ©¦                   µ÷ÊÔÆ÷ RX       ©¦  ©¦ ©¦ ? SERIAL_DMA_RX_CHANNEL     ©¦           ©¦
-©¦  ©¦                                   ©¦  ©¦ ©¦ ? SERIAL_DMA_RX_RCC         ©¦           ©¦
-©¦  ©¦ ? PD6 (USART2_RX) ©¤©¤©¤©´            ©¦  ©¦ ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼           ©¦
-©¦  ©¦                      ¨‹            ©¦  ©¦                                           ©¦
-©¦  ©¦                   µ÷ÊÔÆ÷ TX       ©¦  ©¦                                            ©¦
-©¦  ©¦                                   ©¦  ©¦                                           ©¦
-©¦  ©¦ ? DMA1 Stream5 Channel4 ©¤©¤©¤©´      ©¦  ©¦                                           ©¦
-©¦  ©¦   £¨Âß¼­Á¬½Ó£©              ¨‹      ©¦  ©¦                                           ©¦
-©¦  ©¦                         USART2 RX ©¦  ©¦                                           ©¦
-©¦  ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼  ©¦                                           ©¦
-©¦                                                                                     ©¦
-©À©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©È
-©¦  USART1 AT Ö¸Áî´®¿Ú£¨WiFi£©              ©¦ ÐÞ¸ÄÎ»ÖÃ£ºATÏà¹ØÍ·ÎÄ¼þ                      ©¦
-©¦  ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´  ©¦ ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´               ©¦
-©¦  ©¦ GPIOA / USART1                    ©¦  ©¦ ©¦ ? AT_USART              ©¦               ©¦
-©¦  ©¦                                   ©¦  ©¦ ©¦ ? AT_USART_PORT         ©¦               ©¦
-©¦  ©¦ ? PA9  (USART1_TX) ©¤©¤©¤©´           ©¦  ©¦ ©¦ ? AT_USART_TX/RX        ©¦               ©¦
-©¦  ©¦                       ¨‹           ©¦  ©¦ ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼               ©¦
-©¦  ©¦                   ESP32 RX        ©¦  ©¦                                           ©¦
-©¦  ©¦                                   ©¦  ©¦ ×¢Òâ£º                                     ©¦
-©¦  ©¦ ? PA10 (USART1_RX) ©¤©¤©¤©´           ©¦  ©¦ ? ²»Ê¹ÓÃÖÐ¶ÏºÍDMA                          ©¦
-©¦  ©¦                       ¨‹           ©¦  ©¦ ? ²»¿ÉÓëÈÕÖ¾´®¿Ú¹²ÓÃ                       ©¦
-©¦  ©¦                   ESP32 TX        ©¦  ©¦                                           ©¦
-©¦  ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼  ©¦                                           ©¦
-©¦                                                                                     ©¦
-©À©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©È
-©¦  DHT11 ÎÂÊª¶È´«¸ÐÆ÷                    ©¦ ÐÞ¸ÄÎ»ÖÃ£ºDHT11.h                            ©¦
-©¦  ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´  ©¦ ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´               ©¦
-©¦  ©¦ GPIOE                             ©¦  ©¦ ©¦ ? DHT11_PORT            ©¦               ©¦
-©¦  ©¦ ? PE2 (GPIO) ©¤©¤©¤©¤©¤©¤©¤©¤©´            ©¦  ©¦ ©¦ ? DHT11_PIN             ©¦               ©¦
-©¦  ©¦                     ¨‹             ©¦  ©¦ ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼               ©¦
-©¦  ©¦                  DHT11 DATA       ©¦  ©¦                                           ©¦
-©¦  ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼  ©¦                                           ©¦
-©¦                                                                                     ©¦
-©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                                STM32 ä¸»æŽ§èŠ¯ç‰‡                                        â”‚
+â”‚                                                                                     â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚      TFT-LCDï¼ˆST7789ï¼‰SPI1 + æŽ§åˆ¶å¼•è„š            â”‚ ä¿®æ”¹ä½ç½®ï¼šTFT_LCD.h                â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”      â”‚
+â”‚  â”‚ GPIOA / SPI1                            â”‚    â”‚ â”‚ ? TFT_LCD_SPIx           â”‚      â”‚
+â”‚  â”‚                                         â”‚    â”‚ â”‚ ? TFT_LCD_PORT           â”‚      â”‚
+â”‚  â”‚ ? PA5  (SPI1_SCK)  â”€â”€â”€â”€â”                â”‚    â”‚ â”‚ ? TFT_LCD_SCK/MOSI/MISO/CSâ”‚     â”‚
+â”‚  â”‚                        â–¼                â”‚    â”‚ â”‚ ? TFT_LCD_DC/RST         â”‚      â”‚
+â”‚  â”‚ ? PA7  (SPI1_MOSI) â”€â”€â”€â”€â”                â”‚    â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜      â”‚
+â”‚  â”‚                        â–¼                â”‚    â”‚                                   â”‚
+â”‚  â”‚ ? PA4  (GPIO_CS)  â”€â”€â”€â”€â”€â”                â”‚    â”‚                                   â”‚
+â”‚  â”‚                        â–¼                â”‚    â”‚                                   â”‚
+â”‚  â”‚ ? PA3  (GPIO_DC)  â”€â”€â”€â”€â”€â”                â”‚    â”‚                                   â”‚
+â”‚  â”‚                        â–¼                â”‚    â”‚                                   â”‚
+â”‚  â”‚ ? PA2  (GPIO_RST) â”€â”€â”€â”€â”€â”                â”‚    â”‚                                   â”‚
+â”‚  â”‚                        â–¼                â”‚    â”‚                                   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚                                   â”‚
+â”‚                          â”‚                      â”‚                                   â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                                    â”‚
+â”‚  â”‚         TFT-LCD æ¨¡å— ï¼š GPIOA                â”‚                                    â”‚
+â”‚  â”‚  ? SCK   â† PA5                              â”‚                                    â”‚
+â”‚  â”‚  ? MOSI  â† PA7                              â”‚                                    â”‚
+â”‚  â”‚  ? CS    â† PA4                              â”‚                                    â”‚
+â”‚  â”‚  ? DC    â† PA3                              â”‚                                    â”‚
+â”‚  â”‚  ? RST   â† PA2                              â”‚                                    â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                                    â”‚
+â”‚                                                                                     â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ SPI1 DMA å‘é€ï¼ˆé€»è¾‘è¿žæŽ¥ï¼‰                 â”‚ ä¿®æ”¹ä½ç½®ï¼šTFT_LCD.h / ST7789_Init()       â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”              â”‚
+â”‚  â”‚ ? DMA2 Stream3 Channel3 â”€â”€â”€â”       â”‚ â”‚ â”‚ ? TFT_DMA_Stream        â”‚               â”‚
+â”‚  â”‚                            â–¼       â”‚ â”‚ â”‚ ? TFT_DMA_Channel       â”‚               â”‚
+â”‚  â”‚                          SPI1 TX   â”‚ â”‚ â”‚ ? TFT_DMA_RCC           â”‚               â”‚
+â”‚  â”‚      ï¼ˆå†…å­˜ â†’ SPIæ•°æ®å¯„å­˜å™¨ï¼‰        â”‚ â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜              â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚                                           â”‚
+â”‚                                                                                     â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚  USART2 æ—¥å¿—ä¸²å£ï¼ˆè°ƒè¯•ï¼‰               â”‚ ä¿®æ”¹ä½ç½®ï¼šu_usart.h                          â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”           â”‚
+â”‚  â”‚ GPIOD / USART2                    â”‚  â”‚ â”‚ ? SERIAL_USART              â”‚           â”‚
+â”‚  â”‚                                   â”‚  â”‚ â”‚ ? SERIAL_USART_PORT         â”‚           â”‚
+â”‚  â”‚ ? PD5 (USART2_TX) â”€â”€â”€â”            â”‚  â”‚ â”‚ ? SERIAL_USART_TX/RX        â”‚           â”‚
+â”‚  â”‚                      â–¼            â”‚  â”‚ â”‚ ? SERIAL_DMA_RX_STREAM      â”‚           â”‚
+â”‚  â”‚                   è°ƒè¯•å™¨ RX       â”‚  â”‚ â”‚ ? SERIAL_DMA_RX_CHANNEL     â”‚           â”‚
+â”‚  â”‚                                   â”‚  â”‚ â”‚ ? SERIAL_DMA_RX_RCC         â”‚           â”‚
+â”‚  â”‚ ? PD6 (USART2_RX) â”€â”€â”€â”            â”‚  â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜           â”‚
+â”‚  â”‚                      â–¼            â”‚  â”‚                                           â”‚
+â”‚  â”‚                   è°ƒè¯•å™¨ TX       â”‚  â”‚                                            â”‚
+â”‚  â”‚                                   â”‚  â”‚                                           â”‚
+â”‚  â”‚ ? DMA1 Stream5 Channel4 â”€â”€â”€â”      â”‚  â”‚                                           â”‚
+â”‚  â”‚   ï¼ˆé€»è¾‘è¿žæŽ¥ï¼‰              â–¼      â”‚  â”‚                                           â”‚
+â”‚  â”‚                         USART2 RX â”‚  â”‚                                           â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚                                           â”‚
+â”‚                                                                                     â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚  USART1 AT æŒ‡ä»¤ä¸²å£ï¼ˆWiFiï¼‰              â”‚ ä¿®æ”¹ä½ç½®ï¼šATç›¸å…³å¤´æ–‡ä»¶                      â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”               â”‚
+â”‚  â”‚ GPIOA / USART1                    â”‚  â”‚ â”‚ ? AT_USART              â”‚               â”‚
+â”‚  â”‚                                   â”‚  â”‚ â”‚ ? AT_USART_PORT         â”‚               â”‚
+â”‚  â”‚ ? PA9  (USART1_TX) â”€â”€â”€â”           â”‚  â”‚ â”‚ ? AT_USART_TX/RX        â”‚               â”‚
+â”‚  â”‚                       â–¼           â”‚  â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜               â”‚
+â”‚  â”‚                   ESP32 RX        â”‚  â”‚                                           â”‚
+â”‚  â”‚                                   â”‚  â”‚ æ³¨æ„ï¼š                                     â”‚
+â”‚  â”‚ ? PA10 (USART1_RX) â”€â”€â”€â”           â”‚  â”‚ ? ä¸ä½¿ç”¨ä¸­æ–­å’ŒDMA                          â”‚
+â”‚  â”‚                       â–¼           â”‚  â”‚ ? ä¸å¯ä¸Žæ—¥å¿—ä¸²å£å…±ç”¨                       â”‚
+â”‚  â”‚                   ESP32 TX        â”‚  â”‚                                           â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚                                           â”‚
+â”‚                                                                                     â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚  DHT11 æ¸©æ¹¿åº¦ä¼ æ„Ÿå™¨                    â”‚ ä¿®æ”¹ä½ç½®ï¼šDHT11.h                            â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”               â”‚
+â”‚  â”‚ GPIOE                             â”‚  â”‚ â”‚ ? DHT11_PORT            â”‚               â”‚
+â”‚  â”‚ ? PE2 (GPIO) â”€â”€â”€â”€â”€â”€â”€â”€â”            â”‚  â”‚ â”‚ ? DHT11_PIN             â”‚               â”‚
+â”‚  â”‚                     â–¼             â”‚  â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜               â”‚
+â”‚  â”‚                  DHT11 DATA       â”‚  â”‚                                           â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚                                           â”‚
+â”‚                                                                                     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
