@@ -1,7 +1,7 @@
 # CLOCK_FREERTOS
 ## 效果展示
-![](attachment/clock_2.jpeg)
-![](attachment/clock_1.jpeg)
+<img src="attachment/clock_2.jpeg" width="50%">
+<img src="attachment/clock_1.jpeg" width="50%">
 
 ## 硬件
 - STM32F407VET6
